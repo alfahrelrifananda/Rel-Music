@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    tools:context=".ui.settings.SettingsFragment">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/profileNestedScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="16dp"
+        android:clipToPadding="false"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="32dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="Music Library"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="?attr/colorPrimary" />
+
+            <!-- Scan Music Folders -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/scan_folders_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="32dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+                app:strokeColor="@color/transparent"
+                app:rippleColor="?attr/colorPrimary"
+                android:stateListAnimator="@animator/card_press_animation"
+                android:foreground="?attr/selectableItemBackground">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="20dp"
+                    android:paddingHorizontal="20dp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/scan_icon_card"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        app:cardCornerRadius="24dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="?attr/colorTertiaryContainer"
+                        app:strokeColor="@color/transparent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <ImageView
+                            android:id="@+id/scan_icon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_baseline_folder_24"
+                            app:tint="?attr/colorOnSurface" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:id="@+id/scan_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="Scan Music Folders"
+                        android:textAppearance="?attr/textAppearanceLabelLarge"
+                        android:textColor="?attr/colorOnSurface"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/scan_icon_card"
+                        app:layout_constraintTop_toTopOf="@+id/scan_icon_card" />
+
+                    <TextView
+                        android:id="@+id/scan_description"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="Add folders to scan for music files"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textFontWeight="300"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/scan_icon_card"
+                        app:layout_constraintTop_toBottomOf="@+id/scan_title" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:text="Appearance"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="?attr/colorPrimary" />
+
+            <!-- Theme Settings -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/theme_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="32dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+                app:strokeColor="@color/transparent"
+                app:rippleColor="?attr/colorPrimary"
+                android:stateListAnimator="@animator/card_press_animation"
+                android:foreground="?attr/selectableItemBackground">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="20dp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/theme_icon_card"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        app:cardCornerRadius="24dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="?attr/colorSecondaryContainer"
+                        app:strokeColor="@color/transparent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <ImageView
+                            android:id="@+id/theme_icon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_baseline_color_lens_24"
+                            app:tint="?attr/colorOnSurface" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:id="@+id/theme_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="Theme"
+                        android:textAppearance="?attr/textAppearanceLabelLarge"
+                        android:textColor="?attr/colorOnSurface"
+                        app:layout_constraintEnd_toStartOf="@+id/theme_arrow"
+                        app:layout_constraintStart_toEndOf="@+id/theme_icon_card"
+                        app:layout_constraintTop_toTopOf="@+id/theme_icon_card" />
+
+                    <TextView
+                        android:id="@+id/theme_description"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="Choose light, dark, or system theme"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textFontWeight="300"
+                        app:layout_constraintEnd_toStartOf="@+id/theme_arrow"
+                        app:layout_constraintStart_toEndOf="@+id/theme_icon_card"
+                        app:layout_constraintTop_toBottomOf="@+id/theme_title" />
+
+                    <ImageView
+                        android:id="@+id/theme_arrow"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_outline_arrow_forward_24"
+                        app:tint="?attr/colorOnSurfaceVariant"
+                        app:layout_constraintBottom_toBottomOf="@+id/theme_icon_card"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/theme_icon_card" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp"/>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
