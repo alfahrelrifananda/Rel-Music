@@ -47,7 +47,6 @@ public class MusicService extends Service implements
     private static final int NOTIFICATION_ID = 1;
     private static final String CHANNEL_ID = "MusicPlaybackChannel";
 
-    // Actions
     public static final String ACTION_PLAY = "ACTION_PLAY";
     public static final String ACTION_PAUSE = "ACTION_PAUSE";
     public static final String ACTION_TOGGLE_PLAY_PAUSE = "ACTION_TOGGLE_PLAY_PAUSE";
@@ -59,38 +58,32 @@ public class MusicService extends Service implements
     public static final String ACTION_TOGGLE_REPEAT = "ACTION_TOGGLE_REPEAT";
     public static final String ACTION_SET_PLAYLIST = "ACTION_SET_PLAYLIST";
 
-    // Broadcast actions
     public static final String ACTION_MUSIC_UPDATED = "ACTION_MUSIC_UPDATED";
     public static final String ACTION_PLAYBACK_STATE_CHANGED = "ACTION_PLAYBACK_STATE_CHANGED";
     public static final String ACTION_HIDE_MINI_PLAYER = "ACTION_HIDE_MINI_PLAYER";
     public static final String ACTION_SHUFFLE_STATE_CHANGED = "ACTION_SHUFFLE_STATE_CHANGED";
     public static final String ACTION_REPEAT_STATE_CHANGED = "ACTION_REPEAT_STATE_CHANGED";
 
-    // Repeat modes
     public static final int REPEAT_OFF = 0;
     public static final int REPEAT_ALL = 1;
     public static final int REPEAT_ONE = 2;
 
-    // Media components
     private MediaPlayer mediaPlayer;
     private MediaSessionCompat mediaSession;
     private AudioManager audioManager;
     private AudioFocusRequest audioFocusRequest;
     private NotificationManager notificationManager;
 
-    // Playback state
     private MusicItem currentSong;
     private boolean isPlaying = false;
     private boolean isPrepared = false;
     private boolean isServiceDestroyed = false;
     private Handler handler = new Handler(Looper.getMainLooper());
 
-    // Playlist management
     private List<MusicItem> playlist = new ArrayList<>();
     private List<MusicItem> originalPlaylist = new ArrayList<>();
     private int currentIndex = -1;
 
-    // Playback modes
     private boolean isShuffleEnabled = false;
     private int repeatMode = REPEAT_OFF;
     private Random random = new Random();
@@ -133,7 +126,6 @@ public class MusicService extends Service implements
         mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setOnErrorListener(this);
 
-        // Set audio attributes for media playback
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             AudioAttributes audioAttributes = new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -478,7 +470,6 @@ public class MusicService extends Service implements
                         return;
                     }
                 } catch (IllegalStateException e) {
-                    // Ignore
                 }
             }
 
@@ -510,7 +501,6 @@ public class MusicService extends Service implements
         }
     }
 
-    // Playlist management methods (keeping your existing logic)
     private MusicItem getNextSong() {
         if (playlist.isEmpty()) {
             return null;
@@ -663,7 +653,6 @@ public class MusicService extends Service implements
         }
     }
 
-    // MediaSession state management
     private void updatePlaybackState() {
         int state = isPlaying ? PlaybackStateCompat.STATE_PLAYING :
                 isPrepared ? PlaybackStateCompat.STATE_PAUSED : PlaybackStateCompat.STATE_STOPPED;
@@ -685,17 +674,14 @@ public class MusicService extends Service implements
 
         mediaSession.setPlaybackState(playbackState);
 
-        // Set shuffle and repeat modes separately using MediaSession methods
         updateMediaSessionModes();
     }
 
     private void updateMediaSessionModes() {
-        // Set shuffle mode on MediaSession
         int shuffleMode = isShuffleEnabled ?
                 PlaybackStateCompat.SHUFFLE_MODE_ALL : PlaybackStateCompat.SHUFFLE_MODE_NONE;
         mediaSession.setShuffleMode(shuffleMode);
 
-        // Set repeat mode on MediaSession
         int sessionRepeatMode;
         switch (repeatMode) {
             case REPEAT_OFF:
@@ -772,15 +758,11 @@ public class MusicService extends Service implements
                         .setCancelButtonIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(
                                 this, PlaybackStateCompat.ACTION_STOP)));
 
-        // Load and set album art
         Bitmap albumArt = getAlbumArt(currentSong);
         if (albumArt != null) {
             builder.setLargeIcon(albumArt);
 
-            // For Android 13+ (API 33+), set background for enhanced media notification
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                // The system will automatically use the large icon as background
-                // and apply appropriate styling for enhanced media notifications
                 builder.setColorized(true);
             }
         }
@@ -788,7 +770,6 @@ public class MusicService extends Service implements
         startForeground(NOTIFICATION_ID, builder.build());
     }
 
-    // Helper method to extract album art
     private Bitmap getAlbumArt(MusicItem musicItem) {
         try {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
@@ -798,19 +779,16 @@ public class MusicService extends Service implements
             retriever.release();
 
             if (albumArtBytes != null) {
-                // Decode and resize the bitmap to appropriate size for notification
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inJustDecodeBounds = true;
                 BitmapFactory.decodeByteArray(albumArtBytes, 0, albumArtBytes.length, options);
 
-                // Calculate appropriate sample size (notification icons should be around 256x256dp)
                 int targetSize = (int) (256 * getResources().getDisplayMetrics().density);
                 options.inSampleSize = calculateInSampleSize(options, targetSize, targetSize);
                 options.inJustDecodeBounds = false;
 
                 Bitmap bitmap = BitmapFactory.decodeByteArray(albumArtBytes, 0, albumArtBytes.length, options);
 
-                // Create a square bitmap if needed
                 if (bitmap != null) {
                     int size = Math.min(bitmap.getWidth(), bitmap.getHeight());
                     return Bitmap.createBitmap(bitmap,
@@ -826,7 +804,6 @@ public class MusicService extends Service implements
         return null;
     }
 
-    // Helper method to calculate sample size for bitmap decoding
     private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         final int height = options.outHeight;
         final int width = options.outWidth;
@@ -845,7 +822,6 @@ public class MusicService extends Service implements
         return inSampleSize;
     }
 
-    // MediaPlayer callbacks
     @Override
     public void onPrepared(MediaPlayer mp) {
         isPrepared = true;
@@ -866,7 +842,6 @@ public class MusicService extends Service implements
         return false;
     }
 
-    // Audio focus callback
     @Override
     public void onAudioFocusChange(int focusChange) {
         switch (focusChange) {
@@ -894,7 +869,6 @@ public class MusicService extends Service implements
         }
     }
 
-    // Broadcast methods (keeping your existing implementations)
     private void broadcastMusicUpdate() {
         if (isServiceDestroyed || currentSong == null) {
             return;
@@ -978,7 +952,6 @@ public class MusicService extends Service implements
         }
     }
 
-    // Public getters (keeping your existing methods)
     public MediaPlayer getMediaPlayer() {
         return mediaPlayer;
     }

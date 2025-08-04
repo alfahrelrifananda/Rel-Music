@@ -54,16 +54,14 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
         holder.artistNameTextView.setText(albumItem.getArtistName());
         holder.songCountTextView.setText(albumItem.getFormattedSongCount());
 
-        // Load album art using Glide
         Glide.with(context)
                 .load(albumItem.getAlbumArtUri())
                 .apply(new RequestOptions()
-                        .placeholder(R.drawable.ic_outline_album_24) // Default album icon
+                        .placeholder(R.drawable.ic_outline_album_24)
                         .error(R.drawable.ic_outline_album_24)
                         .centerCrop())
                 .into(holder.albumArtImageView);
 
-        // Set click listeners
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onAlbumItemClick(albumItem);

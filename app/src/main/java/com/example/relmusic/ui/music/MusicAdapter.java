@@ -56,12 +56,11 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
         Glide.with(context)
                 .load(musicItem.getAlbumArtUri())
                 .apply(new RequestOptions()
-                        .placeholder(R.drawable.ic_outline_music_note_24) // Default music icon
+                        .placeholder(R.drawable.ic_outline_music_note_24)
                         .error(R.drawable.ic_outline_music_note_24)
                         .centerCrop())
                 .into(holder.albumArtImageView);
 
-        // Set click listeners
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onMusicItemClick(musicItem);

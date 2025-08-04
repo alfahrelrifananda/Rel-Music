@@ -46,11 +46,9 @@ public class NowPlayingActivity extends AppCompatActivity {
     private boolean isPlaying = false;
     private boolean isDraggingSeekBar = false;
 
-    // State variables for shuffle and repeat
     private boolean isShuffleEnabled = false;
     private int repeatMode = MusicService.REPEAT_OFF;
 
-    // ServiceConnection to bind to MusicService
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -58,7 +56,6 @@ public class NowPlayingActivity extends AppCompatActivity {
             musicService = binder.getService();
             serviceBound = true;
 
-            // Update UI with current service state
             updateUIFromService();
             startSeekBarUpdates();
         }
@@ -70,7 +67,6 @@ public class NowPlayingActivity extends AppCompatActivity {
         }
     };
 
-    // BroadcastReceiver for music service updates
     private BroadcastReceiver musicUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -109,14 +105,12 @@ public class NowPlayingActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Apply dynamic colors
         DynamicColors.applyToActivityIfAvailable(this);
 
         super.onCreate(savedInstanceState);
         binding = ActivityNowPlayingBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Get song data from intent
         Intent intent = getIntent();
         if (intent.hasExtra("music_item")) {
             currentSong = intent.getParcelableExtra("music_item");
@@ -128,11 +122,7 @@ public class NowPlayingActivity extends AppCompatActivity {
 
         setupClickListeners();
         setupSlider();
-
-        // Bind to music service
         bindToMusicService();
-
-        // Register broadcast receiver
         registerMusicUpdateReceiver();
     }
 
@@ -155,7 +145,6 @@ public class NowPlayingActivity extends AppCompatActivity {
                 registerReceiver(musicUpdateReceiver, filter);
             }
 
-            Log.d("NowPlayingActivity", "Music update receiver registered successfully");
         } catch (Exception e) {
             Log.e("NowPlayingActivity", "Error registering broadcast receiver: " + e.getMessage(), e);
         }
@@ -164,21 +153,17 @@ public class NowPlayingActivity extends AppCompatActivity {
     private void setupNowPlaying() {
         if (currentSong == null) return;
 
-        // Set song information
         binding.songTitle.setText(currentSong.getTitle());
         binding.artistName.setText(currentSong.getArtist());
         binding.albumName.setText(currentSong.getAlbum());
 
-        // Set duration
         binding.totalDuration.setText(formatDuration(currentSong.getDuration()));
 
-        // Load album art and extract colors
         loadAlbumArt();
     }
 
     private void updateUIFromService() {
         if (musicService != null) {
-            // Update current song
             MusicItem serviceSong = musicService.getCurrentSong();
             if (serviceSong != null) {
                 if (currentSong == null || serviceSong.getId() != currentSong.getId()) {
@@ -189,7 +174,6 @@ public class NowPlayingActivity extends AppCompatActivity {
                 updatePlayPauseButton();
             }
 
-            // Update shuffle and repeat states
             isShuffleEnabled = musicService.isShuffleEnabled();
             repeatMode = musicService.getRepeatMode();
             updateShuffleButton();
@@ -208,7 +192,6 @@ public class NowPlayingActivity extends AppCompatActivity {
                     public void onResourceReady(Bitmap bitmap, Transition<? super Bitmap> transition) {
                         binding.albumArt.setImageBitmap(bitmap);
 
-                        // Extract colors from album art for dynamic theming
                         Palette.from(bitmap).generate(palette -> {
                             if (palette != null) {
                                 applyDynamicColors(palette);
@@ -237,7 +220,6 @@ public class NowPlayingActivity extends AppCompatActivity {
             accentColor = dominantSwatch.getRgb();
         }
 
-        // Force black color for all player control icons
         int blackColor = Color.BLACK;
 
         binding.seekBar.setThumbTintList(android.content.res.ColorStateList.valueOf(accentColor));
@@ -267,7 +249,6 @@ public class NowPlayingActivity extends AppCompatActivity {
         binding.nextButton.setOnClickListener(v -> playNext());
         binding.backButton.setOnClickListener(v -> onBackPressed());
 
-        // Secondary controls
         binding.shuffleButton.setOnClickListener(v -> toggleShuffle());
         binding.repeatButton.setOnClickListener(v -> toggleRepeat());
     }
@@ -301,7 +282,6 @@ public class NowPlayingActivity extends AppCompatActivity {
             }
         });
 
-        // Set slider range
         binding.seekBar.setValueFrom(0f);
         binding.seekBar.setValueTo(100f);
         binding.seekBar.setValue(0f);
@@ -314,14 +294,12 @@ public class NowPlayingActivity extends AppCompatActivity {
     }
 
     private void playNext() {
-        Log.d("NowPlayingActivity", "Next button clicked");
         Intent serviceIntent = new Intent(this, MusicService.class);
         serviceIntent.setAction(MusicService.ACTION_NEXT);
         startService(serviceIntent);
     }
 
     private void playPrevious() {
-        Log.d("NowPlayingActivity", "Previous button clicked");
         Intent serviceIntent = new Intent(this, MusicService.class);
         serviceIntent.setAction(MusicService.ACTION_PREVIOUS);
         startService(serviceIntent);
@@ -346,40 +324,32 @@ public class NowPlayingActivity extends AppCompatActivity {
     }
 
     private void updateShuffleButton() {
-        // Update shuffle button appearance based on state
         if (isShuffleEnabled) {
-            // Make button appear active/pressed
             binding.shuffleButton.setAlpha(1.0f);
-            // You might want to change the icon or add a different visual indicator
         } else {
-            // Make button appear inactive
             binding.shuffleButton.setAlpha(0.6f);
         }
     }
 
     private void updateRepeatButton() {
-        // Update repeat button based on repeat mode
         switch (repeatMode) {
             case MusicService.REPEAT_OFF:
                 binding.repeatButton.setAlpha(0.6f);
-                // Use default repeat icon
                 binding.repeatButton.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_baseline_repeat_24));
                 break;
             case MusicService.REPEAT_ALL:
                 binding.repeatButton.setAlpha(1.0f);
-                // Use repeat all icon
                 binding.repeatButton.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_baseline_repeat_24));
                 break;
             case MusicService.REPEAT_ONE:
                 binding.repeatButton.setAlpha(1.0f);
-                // Use repeat one icon (you might need to create this drawable)
                 binding.repeatButton.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_baseline_repeat_one_24));
                 break;
         }
     }
 
     private void startSeekBarUpdates() {
-        stopSeekBarUpdates(); // Stop any existing updates
+        stopSeekBarUpdates();
 
         updateSeekBar = new Runnable() {
             @Override
@@ -396,7 +366,6 @@ public class NowPlayingActivity extends AppCompatActivity {
                             binding.currentTime.setText(formatDuration(currentPosition));
                         }
                     } catch (IllegalStateException e) {
-                        // MediaPlayer might be in invalid state
                     }
                 }
 
@@ -421,7 +390,6 @@ public class NowPlayingActivity extends AppCompatActivity {
     }
 
     public void onBackPressedDispatcher() {
-        // When back is pressed, just minimize to MainActivity's mini player
         super.onBackPressed();
         overridePendingTransition(0, R.anim.slide_out_bottom);
     }
@@ -430,16 +398,13 @@ public class NowPlayingActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        // Stop seek bar updates
         stopSeekBarUpdates();
 
-        // Unbind from service
         if (serviceBound) {
             unbindService(serviceConnection);
             serviceBound = false;
         }
 
-        // Unregister broadcast receiver
         if (musicUpdateReceiver != null) {
             unregisterReceiver(musicUpdateReceiver);
         }

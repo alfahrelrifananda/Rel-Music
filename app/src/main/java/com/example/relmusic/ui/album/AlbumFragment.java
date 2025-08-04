@@ -41,10 +41,9 @@ public class AlbumFragment extends Fragment {
     private ExecutorService executorService;
     private static final int PERMISSION_REQUEST_CODE = 124;
 
-    // Cache management
     private static List<AlbumItem> cachedAlbumList = null;
     private static long lastCacheTime = 0;
-    private static final long CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+    private static final long CACHE_DURATION = 5 * 60 * 1000;
     private boolean isLoading = false;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -65,24 +64,20 @@ public class AlbumFragment extends Fragment {
     private void setupRecyclerView() {
         RecyclerView recyclerView = binding.albumRecyclerView;
 
-        // Set up GridLayoutManager with 2 columns
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
         albumAdapter = new AlbumAdapter(albumList, getContext());
         recyclerView.setAdapter(albumAdapter);
 
-        // Set up click listeners
         albumAdapter.setOnAlbumItemClickListener(new AlbumAdapter.OnAlbumItemClickListener() {
             @Override
             public void onAlbumItemClick(AlbumItem albumItem) {
-                // Navigate to album details activity
                 openAlbumDetail(albumItem);
             }
 
             @Override
             public void onPlayButtonClick(AlbumItem albumItem) {
-                // Handle play button click - play all songs from this album
                 playAllSongsFromAlbum(albumItem);
             }
         });
@@ -100,13 +95,11 @@ public class AlbumFragment extends Fragment {
     private void playAllSongsFromAlbum(AlbumItem albumItem) {
         if (getContext() == null) return;
 
-        // Check storage permission first
         if (!hasStoragePermission()) {
             Toast.makeText(getContext(), "Storage permission required to play music", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Load all songs from this album and start playing
         executorService.execute(() -> {
             List<MusicItem> albumSongs = loadSongsFromAlbum(albumItem.getAlbumId());
 
@@ -167,7 +160,6 @@ public class AlbumFragment extends Fragment {
                     String path = cursor.getString(pathColumn);
                     long songAlbumId = cursor.getLong(albumIdColumn);
 
-                    // Create album art URI
                     Uri albumArtUri = Uri.parse("content://media/external/audio/albumart/" + songAlbumId);
 
                     MusicItem musicItem = new MusicItem(id, title, artist, album, duration, path, albumArtUri);
@@ -185,30 +177,25 @@ public class AlbumFragment extends Fragment {
     private void startAlbumPlayback(List<MusicItem> albumSongs) {
         if (getContext() == null || albumSongs.isEmpty()) return;
 
-        // First, set the album playlist in the service
         Intent playlistIntent = new Intent(getContext(), MusicService.class);
         playlistIntent.setAction(MusicService.ACTION_SET_PLAYLIST);
         playlistIntent.putParcelableArrayListExtra("playlist", new ArrayList<>(albumSongs));
         playlistIntent.putExtra("start_index", 0);
         getContext().startService(playlistIntent);
 
-        // Then, play the first song
         Intent playIntent = new Intent(getContext(), MusicService.class);
         playIntent.setAction(MusicService.ACTION_PLAY);
         playIntent.putExtra("music_item", albumSongs.get(0));
         getContext().startService(playIntent);
 
-        android.util.Log.d("AlbumFragment", "Started album playback with " + albumSongs.size() + " songs");
     }
 
     private void loadAlbumData() {
-        // Check if we have valid cached data
         if (isCacheValid()) {
             loadFromCache();
             return;
         }
 
-        // Check permissions and load from device
         checkPermissionAndLoadAlbums();
     }
 
@@ -277,7 +264,6 @@ public class AlbumFragment extends Fragment {
         isLoading = true;
         showLoading(true);
 
-        // Load albums in background thread
         executorService.execute(() -> {
             Map<String, AlbumItem> albumMap = new HashMap<>();
             ContentResolver contentResolver = requireContext().getContentResolver();
@@ -309,7 +295,6 @@ public class AlbumFragment extends Fragment {
                             String albumKey = albumId + "_" + albumName;
 
                             if (!albumMap.containsKey(albumKey)) {
-                                // Create album art URI
                                 Uri albumArtUri = Uri.parse("content://media/external/audio/albumart/" + albumId);
 
                                 AlbumItem albumItem = new AlbumItem(
@@ -317,11 +302,10 @@ public class AlbumFragment extends Fragment {
                                         albumName,
                                         artistName != null ? artistName : "Unknown Artist",
                                         albumArtUri,
-                                        1 // Initial song count
+                                        1
                                 );
                                 albumMap.put(albumKey, albumItem);
                             } else {
-                                // Increment song count for existing album
                                 AlbumItem existingAlbum = albumMap.get(albumKey);
                                 if (existingAlbum != null) {
                                     existingAlbum.setSongCount(existingAlbum.getSongCount() + 1);
@@ -341,23 +325,18 @@ public class AlbumFragment extends Fragment {
                 return;
             }
 
-            // Convert map to list
             List<AlbumItem> tempAlbumList = new ArrayList<>(albumMap.values());
 
-            // Update UI on main thread
             requireActivity().runOnUiThread(() -> {
                 showLoading(false);
                 isLoading = false;
 
-                // Update cache
                 cachedAlbumList = new ArrayList<>(tempAlbumList);
                 lastCacheTime = System.currentTimeMillis();
 
-                // Update current list
                 albumList.clear();
                 albumList.addAll(tempAlbumList);
 
-                // Update the adapter
                 if (albumAdapter != null) {
                     albumAdapter.notifyDataSetChanged();
                 }
@@ -370,7 +349,6 @@ public class AlbumFragment extends Fragment {
     private void updateUI() {
         if (binding == null) return;
 
-        // Show/hide empty state
         if (albumList.isEmpty()) {
             binding.emptyState.setVisibility(View.VISIBLE);
             binding.albumRecyclerView.setVisibility(View.GONE);
@@ -388,7 +366,6 @@ public class AlbumFragment extends Fragment {
             binding.albumRecyclerView.setVisibility(View.GONE);
             binding.emptyState.setVisibility(View.GONE);
 
-            // Hide loading count text since we removed debug messages
             if (binding.loadingCount != null) {
                 binding.loadingCount.setVisibility(View.GONE);
             }
@@ -397,15 +374,12 @@ public class AlbumFragment extends Fragment {
         }
     }
 
-    // Method to force refresh data (can be called from parent activity)
     public void refreshData() {
-        // Clear cache and reload
         cachedAlbumList = null;
         lastCacheTime = 0;
         loadAlbumData();
     }
 
-    // Method to clear cache (useful for memory management)
     public static void clearCache() {
         cachedAlbumList = null;
         lastCacheTime = 0;

@@ -44,13 +44,11 @@ public class MusicFragment extends Fragment {
     private ExecutorService executorService;
     private static final int PERMISSION_REQUEST_CODE = 123;
 
-    // Cache management
     private static List<MusicItem> cachedMusicList = null;
     private static long lastCacheTime = 0;
-    private static final long CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+    private static final long CACHE_DURATION = 5 * 60 * 1000;
     private boolean isLoading = false;
 
-    // BroadcastReceiver for mini player visibility changes
     private BroadcastReceiver miniPlayerReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -58,7 +56,6 @@ public class MusicFragment extends Fragment {
                 boolean isVisible = intent.getBooleanExtra("is_visible", false);
                 int height = intent.getIntExtra("height", 0);
 
-                // Adjust RecyclerView padding to accommodate mini player
                 if (binding != null && binding.musicRecyclerView != null) {
                     RecyclerView recyclerView = binding.musicRecyclerView;
                     recyclerView.setPadding(
@@ -68,7 +65,6 @@ public class MusicFragment extends Fragment {
                             isVisible ? height : 0
                     );
 
-                    // Ensure smooth scrolling after padding change
                     recyclerView.post(() -> {
                         if (recyclerView.getAdapter() != null) {
                             recyclerView.getAdapter().notifyDataSetChanged();
@@ -89,7 +85,6 @@ public class MusicFragment extends Fragment {
 
         executorService = Executors.newSingleThreadExecutor();
         setupRecyclerView();
-        setupSwipeRefresh();
         loadMusicData();
 
         return root;
@@ -101,41 +96,25 @@ public class MusicFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(musicAdapter);
 
-        // Set up click listeners
         musicAdapter.setOnMusicItemClickListener(new MusicAdapter.OnMusicItemClickListener() {
             @Override
             public void onMusicItemClick(MusicItem musicItem) {
-                // Handle item click - start music service and open now playing
                 startMusicServiceAndOpenNowPlaying(musicItem);
             }
 
             @Override
             public void onPlayButtonClick(MusicItem musicItem) {
-                // Handle play button click - start music service
                 startMusicService(musicItem);
             }
         });
     }
 
-    private void setupSwipeRefresh() {
-        // If you have SwipeRefreshLayout in your fragment layout, uncomment this
-        /*
-        if (binding.swipeRefreshLayout != null) {
-            binding.swipeRefreshLayout.setOnRefreshListener(() -> {
-                refreshData();
-            });
-        }
-        */
-    }
-
     private void loadMusicData() {
-        // Check if we have valid cached data
         if (isCacheValid()) {
             loadFromCache();
             return;
         }
 
-        // Check permissions and load from device
         checkPermissionAndLoadMusic();
     }
 
@@ -185,21 +164,16 @@ public class MusicFragment extends Fragment {
             selectedIndex = 0;
         }
 
-        // First, set the full playlist in the service
         Intent playlistIntent = new Intent(getContext(), MusicService.class);
         playlistIntent.setAction(MusicService.ACTION_SET_PLAYLIST);
         playlistIntent.putParcelableArrayListExtra("playlist", new ArrayList<>(musicList));
         playlistIntent.putExtra("start_index", selectedIndex);
         getContext().startService(playlistIntent);
 
-        // Then, play the selected song
         Intent playIntent = new Intent(getContext(), MusicService.class);
         playIntent.setAction(MusicService.ACTION_PLAY);
         playIntent.putExtra("music_item", selectedSong);
         getContext().startService(playIntent);
-
-        android.util.Log.d("MusicFragment", "Started music service with playlist of " +
-                musicList.size() + " songs, selected index: " + selectedIndex);
     }
 
     private void openNowPlaying(MusicItem musicItem) {
@@ -207,7 +181,6 @@ public class MusicFragment extends Fragment {
         intent.putExtra("music_item", (Parcelable) musicItem);
         startActivity(intent);
 
-        // Add slide up animation
         if (getActivity() != null) {
             getActivity().overridePendingTransition(
                     R.anim.slide_in_bottom,
@@ -217,8 +190,6 @@ public class MusicFragment extends Fragment {
     }
 
     private void checkPermissionAndLoadMusic() {
-        // For Android 13+ (API 33+), use READ_MEDIA_AUDIO
-        // For older versions, use READ_EXTERNAL_STORAGE
         String permission;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             permission = Manifest.permission.READ_MEDIA_AUDIO;
@@ -294,7 +265,6 @@ public class MusicFragment extends Fragment {
                         String path = cursor.getString(pathColumn);
                         long albumId = cursor.getLong(albumIdColumn);
 
-                        // Create album art URI
                         Uri albumArtUri = Uri.parse("content://media/external/audio/albumart/" + albumId);
 
                         MusicItem musicItem = new MusicItem(id, title, artist, album, duration, path, albumArtUri);
@@ -313,21 +283,17 @@ public class MusicFragment extends Fragment {
                 return;
             }
 
-            // Update UI on main thread
             requireActivity().runOnUiThread(() -> {
                 showLoading(false);
                 isLoading = false;
 
-                // Update cache
                 cachedMusicList = new ArrayList<>(tempMusicList);
                 lastCacheTime = System.currentTimeMillis();
 
-                // Update current list
                 int previousSize = musicList.size();
                 musicList.clear();
                 musicList.addAll(tempMusicList);
 
-                // Update the adapter
                 if (musicAdapter != null) {
                     musicAdapter.notifyDataSetChanged();
                 }
@@ -335,7 +301,6 @@ public class MusicFragment extends Fragment {
                 updateUI();
                 showRefreshComplete(true);
 
-                // Show refresh feedback
                 int newCount = tempMusicList.size();
                 if (newCount > previousSize) {
                     Toast.makeText(getContext(),
@@ -357,7 +322,6 @@ public class MusicFragment extends Fragment {
     private void updateUI() {
         if (binding == null) return;
 
-        // Show/hide empty state
         if (musicList.isEmpty()) {
             binding.emptyState.setVisibility(View.VISIBLE);
             binding.musicRecyclerView.setVisibility(View.GONE);
@@ -369,51 +333,24 @@ public class MusicFragment extends Fragment {
 
     private void showLoading(boolean show) {
         if (binding == null) return;
-
-        // If you have SwipeRefreshLayout, update it
-        /*
-        if (binding.swipeRefreshLayout != null) {
-            binding.swipeRefreshLayout.setRefreshing(show);
-        }
-        */
-
-        // Add loading indicator to your layout if not present
-        // For now, we'll assume you have a loading view in your layout
-        // binding.loadingIndicator.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void showRefreshComplete(boolean success) {
         if (binding == null) return;
-
-        // Stop SwipeRefreshLayout animation if present
-        /*
-        if (binding.swipeRefreshLayout != null) {
-            binding.swipeRefreshLayout.setRefreshing(false);
-        }
-        */
-
-        // You can add more visual feedback here
-        android.util.Log.d("MusicFragment", "Refresh completed. Success: " + success);
     }
 
-    // Method to force refresh data (can be called from parent activity)
     public void refreshData() {
-        android.util.Log.d("MusicFragment", "refreshData() called - forcing refresh");
 
-        // Clear cache and reload
         cachedMusicList = null;
         lastCacheTime = 0;
 
-        // Show immediate feedback
         if (getContext() != null) {
             Toast.makeText(getContext(), "Refreshing music library...", Toast.LENGTH_SHORT).show();
         }
 
-        // Load data
         loadMusicData();
     }
 
-    // Method to clear cache (useful for memory management)
     public static void clearCache() {
         cachedMusicList = null;
         lastCacheTime = 0;
@@ -422,18 +359,15 @@ public class MusicFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Register broadcast receiver for mini player visibility changes
         if (getActivity() != null) {
             IntentFilter filter = new IntentFilter("MINI_PLAYER_VISIBILITY_CHANGED");
 
-            // For Android 13+ (API 33+), specify RECEIVER_NOT_EXPORTED since these are internal app broadcasts
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                 getActivity().registerReceiver(miniPlayerReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
             } else {
                 getActivity().registerReceiver(miniPlayerReceiver, filter);
             }
 
-            // Request current mini player state
             Intent requestStateIntent = new Intent(getActivity(), MusicService.class);
             requestStateIntent.setAction(MusicService.ACTION_REQUEST_STATE);
             getActivity().startService(requestStateIntent);
@@ -443,12 +377,10 @@ public class MusicFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        // Unregister broadcast receiver
         if (getActivity() != null && miniPlayerReceiver != null) {
             try {
                 getActivity().unregisterReceiver(miniPlayerReceiver);
             } catch (IllegalArgumentException e) {
-                // Receiver was not registered, ignore
             }
         }
     }

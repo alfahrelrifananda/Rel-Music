@@ -19,7 +19,6 @@ public class AlbumItem implements Parcelable {
         this.songCount = songCount;
     }
 
-    // Parcelable constructor
     protected AlbumItem(Parcel in) {
         albumId = in.readLong();
         albumName = in.readString();
@@ -28,7 +27,6 @@ public class AlbumItem implements Parcelable {
         songCount = in.readInt();
     }
 
-    // Parcelable CREATOR
     public static final Creator<AlbumItem> CREATOR = new Creator<AlbumItem>() {
         @Override
         public AlbumItem createFromParcel(Parcel in) {
@@ -55,21 +53,18 @@ public class AlbumItem implements Parcelable {
         dest.writeInt(songCount);
     }
 
-    // Getters
     public long getAlbumId() { return albumId; }
     public String getAlbumName() { return albumName; }
     public String getArtistName() { return artistName; }
     public Uri getAlbumArtUri() { return albumArtUri; }
     public int getSongCount() { return songCount; }
 
-    // Setters
     public void setAlbumId(long albumId) { this.albumId = albumId; }
     public void setAlbumName(String albumName) { this.albumName = albumName; }
     public void setArtistName(String artistName) { this.artistName = artistName; }
     public void setAlbumArtUri(Uri albumArtUri) { this.albumArtUri = albumArtUri; }
     public void setSongCount(int songCount) { this.songCount = songCount; }
 
-    // Utility method to get formatted song count
     public String getFormattedSongCount() {
         return songCount == 1 ? songCount + " song" : songCount + " songs";
     }

@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     private CollapsingToolbarLayout collapsingToolbar;
     private String currentTitle = "RelMusic";
 
-    // Mini player components
     private MaterialCardView miniPlayerContainer;
     private ImageView miniAlbumArt;
     private TextView miniSongTitle;
@@ -54,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
     private MaterialButton miniNextButton;
     private MaterialButton miniCloseButton;
 
-    // Animation for album art rotation
     private ObjectAnimator albumArtRotationAnimator;
 
     private MusicItem currentPlayingItem;
@@ -63,11 +61,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean isReceiverRegistered = false;
     private boolean isActivityDestroyed = false;
 
-    // BroadcastReceiver for music service updates
     private BroadcastReceiver musicUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // Check if activity is still valid
             if (isActivityDestroyed || isFinishing() || isDestroyed()) {
                 return;
             }
@@ -185,11 +181,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupToolbarActions() {
         try {
-            MaterialButton refreshButton = findViewById(R.id.refresh_button); // Renamed for clarity
+            MaterialButton refreshButton = findViewById(R.id.refresh_button);
 
             if (refreshButton != null) {
                 refreshButton.setOnClickListener(v -> {
-                    // Refresh the music fragment list
                     refreshMusicFragmentData();
                 });
             }
@@ -202,7 +197,6 @@ public class MainActivity extends AppCompatActivity {
         try {
             MaterialButton refreshButton = findViewById(R.id.refresh_button);
 
-            // Start rotation animation on the refresh button
             if (refreshButton != null) {
                 refreshButton.animate()
                         .rotation(360f)
@@ -215,46 +209,33 @@ public class MainActivity extends AppCompatActivity {
                         })
                         .start();
 
-                // Temporarily disable the button to prevent multiple clicks
                 refreshButton.setEnabled(false);
                 new android.os.Handler().postDelayed(() -> {
                     if (!isActivityDestroyed && refreshButton != null) {
                         refreshButton.setEnabled(true);
                     }
-                }, 2000); // Re-enable after 2 seconds
+                }, 2000);
             }
 
-            // Find the current fragment using NavController
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 
-            // Clear album cache to force refresh
             com.example.relmusic.ui.album.AlbumFragment.clearCache();
 
-            // Check if we're currently on the music fragment
             if (navController.getCurrentDestination() != null &&
                     navController.getCurrentDestination().getId() == R.id.navigation_music) {
 
-                // Refresh music fragment
                 refreshCurrentFragment("MusicFragment");
-
-                // Also refresh album fragment if it exists
                 refreshAlbumFragmentInBackground();
-
                 Toast.makeText(this, "Refreshing music and album library...", Toast.LENGTH_SHORT).show();
 
             } else if (navController.getCurrentDestination() != null &&
                     navController.getCurrentDestination().getId() == R.id.navigation_album) {
 
-                // Refresh album fragment
                 refreshCurrentFragment("AlbumFragment");
-
-                // Also refresh music fragment in background
                 refreshMusicFragmentInBackground();
-
                 Toast.makeText(this, "Refreshing album and music library...", Toast.LENGTH_SHORT).show();
 
             } else {
-                // If not on music or album fragment, refresh both fragments
                 refreshAllFragments();
                 Toast.makeText(this, "Refreshing music and album library...", Toast.LENGTH_SHORT).show();
             }
@@ -263,7 +244,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Error refreshing fragments: " + e.getMessage(), e);
             Toast.makeText(this, "Error refreshing library", Toast.LENGTH_SHORT).show();
 
-            // Re-enable button in case of error
             MaterialButton refreshButton = findViewById(R.id.refresh_button);
             if (refreshButton != null) {
                 refreshButton.setEnabled(true);
@@ -274,7 +254,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshCurrentFragment(String expectedFragmentType) {
         try {
-            // Get the current fragment from the NavHostFragment
             androidx.fragment.app.Fragment navHostFragment = getSupportFragmentManager()
                     .findFragmentById(R.id.nav_host_fragment_activity_main);
 
@@ -288,7 +267,6 @@ public class MainActivity extends AppCompatActivity {
                     com.example.relmusic.ui.music.MusicFragment musicFragment =
                             (com.example.relmusic.ui.music.MusicFragment) currentFragment;
                     musicFragment.refreshData();
-                    Log.d(TAG, "Music fragment refresh initiated");
 
                 } else if (expectedFragmentType.equals("AlbumFragment") &&
                         currentFragment instanceof com.example.relmusic.ui.album.AlbumFragment) {
@@ -296,7 +274,6 @@ public class MainActivity extends AppCompatActivity {
                     com.example.relmusic.ui.album.AlbumFragment albumFragment =
                             (com.example.relmusic.ui.album.AlbumFragment) currentFragment;
                     albumFragment.refreshData();
-                    Log.d(TAG, "Album fragment refresh initiated");
                 }
             }
         } catch (Exception e) {
@@ -306,12 +283,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshAlbumFragmentInBackground() {
         try {
-            // Get all fragments and find the album fragment
             androidx.fragment.app.Fragment navHostFragment = getSupportFragmentManager()
                     .findFragmentById(R.id.nav_host_fragment_activity_main);
 
             if (navHostFragment != null) {
-                // Get all child fragments
                 java.util.List<androidx.fragment.app.Fragment> childFragments =
                         navHostFragment.getChildFragmentManager().getFragments();
 
@@ -320,7 +295,6 @@ public class MainActivity extends AppCompatActivity {
                         com.example.relmusic.ui.album.AlbumFragment albumFragment =
                                 (com.example.relmusic.ui.album.AlbumFragment) fragment;
                         albumFragment.refreshData();
-                        Log.d(TAG, "Album fragment background refresh initiated");
                         break;
                     }
                 }
@@ -332,12 +306,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshMusicFragmentInBackground() {
         try {
-            // Get all fragments and find the music fragment
             androidx.fragment.app.Fragment navHostFragment = getSupportFragmentManager()
                     .findFragmentById(R.id.nav_host_fragment_activity_main);
 
             if (navHostFragment != null) {
-                // Get all child fragments
                 java.util.List<androidx.fragment.app.Fragment> childFragments =
                         navHostFragment.getChildFragmentManager().getFragments();
 
@@ -346,7 +318,6 @@ public class MainActivity extends AppCompatActivity {
                         com.example.relmusic.ui.music.MusicFragment musicFragment =
                                 (com.example.relmusic.ui.music.MusicFragment) fragment;
                         musicFragment.refreshData();
-                        Log.d(TAG, "Music fragment background refresh initiated");
                         break;
                     }
                 }
@@ -360,24 +331,19 @@ public class MainActivity extends AppCompatActivity {
         try {
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 
-            // Store current destination
             int currentDestination = navController.getCurrentDestination() != null ?
                     navController.getCurrentDestination().getId() : R.id.navigation_music;
 
-            // Navigate to music fragment and refresh
             navController.navigate(R.id.navigation_music);
 
-            // Delay to allow fragment to load, then refresh
             new android.os.Handler().postDelayed(() -> {
                 refreshCurrentFragment("MusicFragment");
 
-                // Navigate to album fragment and refresh
                 navController.navigate(R.id.navigation_album);
 
                 new android.os.Handler().postDelayed(() -> {
                     refreshCurrentFragment("AlbumFragment");
 
-                    // Navigate back to original destination
                     if (currentDestination != R.id.navigation_album) {
                         new android.os.Handler().postDelayed(() -> {
                             try {
@@ -394,7 +360,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Error refreshing all fragments: " + e.getMessage(), e);
         }
     }
-
 
     private void enableEdgeToEdge() {
         try {
@@ -435,7 +400,6 @@ public class MainActivity extends AppCompatActivity {
                 filter.addAction(MusicService.ACTION_PLAYBACK_STATE_CHANGED);
                 filter.addAction(MusicService.ACTION_HIDE_MINI_PLAYER);
 
-                // For Android 13+ (API 33+), specify RECEIVER_NOT_EXPORTED since these are internal app broadcasts
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                     registerReceiver(musicUpdateReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
                 } else {
@@ -443,7 +407,6 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 isReceiverRegistered = true;
-                Log.d(TAG, "Music update receiver registered successfully");
             }
         } catch (Exception e) {
             Log.e(TAG, "Error registering broadcast receiver: " + e.getMessage(), e);
@@ -461,7 +424,6 @@ public class MainActivity extends AppCompatActivity {
             miniNextButton = findViewById(R.id.miniNextButton);
             miniCloseButton = findViewById(R.id.miniCloseButton);
 
-            // Validate all components
             if (miniPlayerContainer == null || miniAlbumArt == null ||
                     miniSongTitle == null || miniArtistName == null ||
                     miniPlayPauseButton == null || miniNextButton == null || miniCloseButton == null) {
@@ -469,10 +431,8 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
 
-            // Initialize rotation animator for album art
             setupAlbumArtRotationAnimator();
 
-            // Set up click listeners for mini player
             miniPlayerContainer.setOnClickListener(v -> {
                 if (!isActivityDestroyed) {
                     openNowPlayingActivity();
@@ -526,14 +486,11 @@ public class MainActivity extends AppCompatActivity {
     private void setupAlbumArtRotationAnimator() {
         try {
             if (miniAlbumArt != null) {
-                // Create rotation animator
                 albumArtRotationAnimator = ObjectAnimator.ofFloat(miniAlbumArt, "rotation", 0f, 360f);
-                albumArtRotationAnimator.setDuration(5000); // 5 seconds for full rotation
+                albumArtRotationAnimator.setDuration(5000);
                 albumArtRotationAnimator.setInterpolator(new LinearInterpolator());
                 albumArtRotationAnimator.setRepeatCount(ObjectAnimator.INFINITE);
                 albumArtRotationAnimator.setRepeatMode(ObjectAnimator.RESTART);
-
-                Log.d(TAG, "Album art rotation animator setup completed");
             } else {
                 Log.e(TAG, "miniAlbumArt is null when setting up rotation animator");
             }
@@ -545,18 +502,14 @@ public class MainActivity extends AppCompatActivity {
     private void startAlbumArtRotation() {
         try {
             if (miniAlbumArt != null) {
-                // Cancel any existing rotation first
                 stopAlbumArtRotation();
 
-                // Use ViewPropertyAnimator for more reliable rotation
-                Log.d(TAG, "Starting album art rotation with ViewPropertyAnimator");
                 miniAlbumArt.animate()
                         .rotation(360f)
                         .setDuration(8000)
                         .setInterpolator(new LinearInterpolator())
                         .withEndAction(() -> {
                             if (!isActivityDestroyed && isPlaying && isMiniPlayerVisible) {
-                                // Reset rotation and start again for infinite loop
                                 miniAlbumArt.setRotation(0f);
                                 startAlbumArtRotation();
                             }
@@ -573,12 +526,9 @@ public class MainActivity extends AppCompatActivity {
     private void stopAlbumArtRotation() {
         try {
             if (miniAlbumArt != null) {
-                Log.d(TAG, "Stopping album art rotation");
-                // Cancel ViewPropertyAnimator
                 miniAlbumArt.animate().cancel();
                 miniAlbumArt.clearAnimation();
 
-                // Also cancel ObjectAnimator if it exists
                 if (albumArtRotationAnimator != null && albumArtRotationAnimator.isRunning()) {
                     albumArtRotationAnimator.cancel();
                 }
@@ -591,7 +541,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showMiniPlayer(MusicItem musicItem) {
-        // Check if activity is still valid
         if (isActivityDestroyed || isFinishing() || isDestroyed() || musicItem == null) {
             return;
         }
@@ -599,18 +548,15 @@ public class MainActivity extends AppCompatActivity {
         try {
             currentPlayingItem = musicItem;
 
-            // Validate UI components before updating
             if (miniSongTitle == null || miniArtistName == null ||
                     miniAlbumArt == null || miniPlayerContainer == null) {
                 Log.e(TAG, "Mini player components are null");
                 return;
             }
 
-            // Update mini player UI
             miniSongTitle.setText(musicItem.getTitle());
             miniArtistName.setText(musicItem.getArtist());
 
-            // Load album art with error handling
             try {
                 Glide.with(this)
                         .load(musicItem.getAlbumArtUri())
@@ -618,7 +564,6 @@ public class MainActivity extends AppCompatActivity {
                         .error(R.drawable.ic_outline_music_note_24)
                         .into(miniAlbumArt);
 
-                // Ensure the animator is set up after the ImageView is ready
                 if (albumArtRotationAnimator == null) {
                     setupAlbumArtRotationAnimator();
                 }
@@ -626,7 +571,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "Error loading album art: " + e.getMessage(), e);
             }
 
-            // Show mini player with animation
             if (!isMiniPlayerVisible) {
                 isMiniPlayerVisible = true;
                 miniPlayerContainer.setVisibility(View.VISIBLE);
@@ -642,7 +586,6 @@ public class MainActivity extends AppCompatActivity {
                         .start();
             }
 
-            // Update play button state and start rotation if playing
             updateMiniPlayerPlayButton();
         } catch (Exception e) {
             Log.e(TAG, "Error showing mini player: " + e.getMessage(), e);
@@ -655,7 +598,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try {
-            // Stop album art rotation when hiding mini player
             stopAlbumArtRotation();
 
             if (isMiniPlayerVisible && miniPlayerContainer != null) {
@@ -684,7 +626,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             Intent intent = new Intent("MINI_PLAYER_VISIBILITY_CHANGED");
             intent.putExtra("is_visible", isVisible);
-            intent.setPackage(getPackageName()); // Restrict to this app only
+            intent.setPackage(getPackageName());
             sendBroadcast(intent);
         } catch (Exception e) {
             Log.e(TAG, "Error broadcasting mini player visibility: " + e.getMessage(), e);
@@ -697,16 +639,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try {
-            Log.d(TAG, "Updating mini player state - playing: " + playing);
             isPlaying = playing;
             updateMiniPlayerPlayButton();
 
-            // Control album art rotation based on playing state
             if (playing && isMiniPlayerVisible) {
-                Log.d(TAG, "Starting rotation because music is playing and mini player is visible");
                 startAlbumArtRotation();
             } else {
-                Log.d(TAG, "Stopping rotation - playing: " + playing + ", visible: " + isMiniPlayerVisible);
                 stopAlbumArtRotation();
             }
         } catch (Exception e) {
@@ -737,7 +675,6 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("music_item", currentPlayingItem);
             startActivity(intent);
 
-            // Add slide up animation
             overridePendingTransition(
                     R.anim.slide_in_bottom,
                     R.anim.slide_out_top
@@ -831,12 +768,10 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         try {
-            // Request current state from music service
             Intent serviceIntent = new Intent(this, MusicService.class);
             serviceIntent.setAction(MusicService.ACTION_REQUEST_STATE);
             startService(serviceIntent);
 
-            // Resume album art rotation if music is playing
             if (isPlaying && isMiniPlayerVisible) {
                 startAlbumArtRotation();
             }
@@ -848,12 +783,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        // Cancel any ongoing animations to prevent crashes
         try {
             if (miniPlayerContainer != null) {
                 miniPlayerContainer.clearAnimation();
             }
-            // Pause album art rotation to save battery
             if (albumArtRotationAnimator != null && albumArtRotationAnimator.isRunning()) {
                 albumArtRotationAnimator.pause();
             }
@@ -866,10 +799,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        // Mark activity as destroyed first
         isActivityDestroyed = true;
 
-        // Stop and clean up album art rotation animator
         try {
             if (albumArtRotationAnimator != null) {
                 albumArtRotationAnimator.cancel();
@@ -879,11 +810,9 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Error cleaning up rotation animator: " + e.getMessage(), e);
         }
 
-        // Unregister broadcast receiver with safety checks
         if (isReceiverRegistered && musicUpdateReceiver != null) {
             try {
                 unregisterReceiver(musicUpdateReceiver);
-                Log.d(TAG, "Music update receiver unregistered successfully");
             } catch (IllegalArgumentException e) {
                 Log.w(TAG, "Receiver was not registered or already unregistered");
             } catch (Exception e) {
@@ -893,12 +822,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        // Clear references to prevent memory leaks
         try {
             currentPlayingItem = null;
             musicUpdateReceiver = null;
 
-            // Clear Glide to prevent memory leaks
             if (!isDestroyed()) {
                 Glide.with(this).clear(miniAlbumArt);
             }

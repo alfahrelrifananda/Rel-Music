@@ -49,7 +49,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
 
     private static final String TAG = "AlbumDetailActivity";
 
-    // Album components
     private MaterialToolbar toolbar;
     private ImageView albumArtImageView;
     private TextView albumTitleTextView;
@@ -59,7 +58,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
     private View loadingLayout;
     private View emptyState;
 
-    // Mini player components
     private MaterialCardView miniPlayerContainer;
     private ImageView miniAlbumArt;
     private TextView miniSongTitle;
@@ -68,28 +66,23 @@ public class AlbumDetailActivity extends AppCompatActivity {
     private MaterialButton miniNextButton;
     private MaterialButton miniCloseButton;
 
-    // Album data
     private AlbumItem albumItem;
     private List<MusicItem> albumSongs = new ArrayList<>();
     private MusicAdapter musicAdapter;
     private ExecutorService executorService;
     private boolean isLoading = false;
 
-    // Mini player state
     private MusicItem currentPlayingItem;
     private boolean isPlaying = false;
     private boolean isMiniPlayerVisible = false;
     private boolean isReceiverRegistered = false;
     private boolean isActivityDestroyed = false;
 
-    // Animation for album art rotation
     private ObjectAnimator albumArtRotationAnimator;
 
-    // BroadcastReceiver for music service updates and mini player visibility
     private BroadcastReceiver musicUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // Check if activity is still valid
             if (isActivityDestroyed || isFinishing() || isDestroyed()) {
                 return;
             }
@@ -132,38 +125,31 @@ public class AlbumDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_album_detail);
 
         try {
-            // Initialize ExecutorService FIRST
             executorService = Executors.newSingleThreadExecutor();
 
-            // Get album data from intent
             if (!getAlbumDataFromIntent()) {
                 finish();
                 return;
             }
 
-            // Initialize views
             if (!initializeViews()) {
                 Log.e(TAG, "Failed to initialize views");
                 finish();
                 return;
             }
 
-            // Initialize mini player
             if (!initializeMiniPlayer()) {
                 Log.e(TAG, "Failed to initialize mini player");
                 finish();
                 return;
             }
 
-            // Setup components
             setupToolbar();
             setupAlbumHeader();
             setupRecyclerView();
 
-            // Load album songs
             loadAlbumSongs();
 
-            // Register broadcast receiver
             registerMusicUpdateReceiver();
 
         } catch (Exception e) {
@@ -192,7 +178,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
             loadingLayout = findViewById(R.id.loadingLayout);
             emptyState = findViewById(R.id.emptyState);
 
-            // Check if all views are found
             if (toolbar == null || albumArtImageView == null || albumTitleTextView == null ||
                     albumArtistTextView == null || songCountTextView == null ||
                     songsRecyclerView == null || loadingLayout == null || emptyState == null) {
@@ -217,7 +202,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
             miniNextButton = findViewById(R.id.miniNextButton);
             miniCloseButton = findViewById(R.id.miniCloseButton);
 
-            // Validate all components
             if (miniPlayerContainer == null || miniAlbumArt == null ||
                     miniSongTitle == null || miniArtistName == null ||
                     miniPlayPauseButton == null || miniNextButton == null || miniCloseButton == null) {
@@ -225,10 +209,8 @@ public class AlbumDetailActivity extends AppCompatActivity {
                 return false;
             }
 
-            // Initialize rotation animator for album art
             setupAlbumArtRotationAnimator();
 
-            // Set up click listeners for mini player
             miniPlayerContainer.setOnClickListener(v -> {
                 if (!isActivityDestroyed) {
                     openNowPlayingActivity();
@@ -282,14 +264,12 @@ public class AlbumDetailActivity extends AppCompatActivity {
     private void setupAlbumArtRotationAnimator() {
         try {
             if (miniAlbumArt != null) {
-                // Create rotation animator
                 albumArtRotationAnimator = ObjectAnimator.ofFloat(miniAlbumArt, "rotation", 0f, 360f);
-                albumArtRotationAnimator.setDuration(5000); // 5 seconds for full rotation
+                albumArtRotationAnimator.setDuration(5000);
                 albumArtRotationAnimator.setInterpolator(new LinearInterpolator());
                 albumArtRotationAnimator.setRepeatCount(ObjectAnimator.INFINITE);
                 albumArtRotationAnimator.setRepeatMode(ObjectAnimator.RESTART);
 
-                Log.d(TAG, "Album art rotation animator setup completed");
             } else {
                 Log.e(TAG, "miniAlbumArt is null when setting up rotation animator");
             }
@@ -301,18 +281,14 @@ public class AlbumDetailActivity extends AppCompatActivity {
     private void startAlbumArtRotation() {
         try {
             if (miniAlbumArt != null) {
-                // Cancel any existing rotation first
                 stopAlbumArtRotation();
 
-                // Use ViewPropertyAnimator for more reliable rotation
-                Log.d(TAG, "Starting album art rotation with ViewPropertyAnimator");
                 miniAlbumArt.animate()
                         .rotation(360f)
                         .setDuration(8000)
                         .setInterpolator(new LinearInterpolator())
                         .withEndAction(() -> {
                             if (!isActivityDestroyed && isPlaying && isMiniPlayerVisible) {
-                                // Reset rotation and start again for infinite loop
                                 miniAlbumArt.setRotation(0f);
                                 startAlbumArtRotation();
                             }
@@ -329,12 +305,9 @@ public class AlbumDetailActivity extends AppCompatActivity {
     private void stopAlbumArtRotation() {
         try {
             if (miniAlbumArt != null) {
-                Log.d(TAG, "Stopping album art rotation");
-                // Cancel ViewPropertyAnimator
                 miniAlbumArt.animate().cancel();
                 miniAlbumArt.clearAnimation();
 
-                // Also cancel ObjectAnimator if it exists
                 if (albumArtRotationAnimator != null && albumArtRotationAnimator.isRunning()) {
                     albumArtRotationAnimator.cancel();
                 }
@@ -361,11 +334,9 @@ public class AlbumDetailActivity extends AppCompatActivity {
 
     private void setupAlbumHeader() {
         try {
-            // Set album title and artist
             albumTitleTextView.setText(albumItem.getAlbumName());
             albumArtistTextView.setText(albumItem.getArtistName());
 
-            // Load album art
             if (albumItem.getAlbumArtUri() != null) {
                 Glide.with(this)
                         .load(albumItem.getAlbumArtUri())
@@ -388,17 +359,14 @@ public class AlbumDetailActivity extends AppCompatActivity {
             songsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             songsRecyclerView.setAdapter(musicAdapter);
 
-            // Set up click listeners
             musicAdapter.setOnMusicItemClickListener(new MusicAdapter.OnMusicItemClickListener() {
                 @Override
                 public void onMusicItemClick(MusicItem musicItem) {
-                    // Handle item click - start music service and open now playing
                     startMusicServiceAndOpenNowPlaying(musicItem);
                 }
 
                 @Override
                 public void onPlayButtonClick(MusicItem musicItem) {
-                    // Handle play button click - start music service
                     startMusicService(musicItem);
                 }
             });
@@ -435,7 +403,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
                     MediaStore.Audio.Media.TRACK
             };
 
-            // Filter by album ID
             String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0 AND " +
                     MediaStore.Audio.Media.ALBUM_ID + " = ?";
             String[] selectionArgs = {String.valueOf(albumItem.getAlbumId())};
@@ -461,7 +428,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
                         String path = cursor.getString(pathColumn);
                         long albumId = cursor.getLong(albumIdColumn);
 
-                        // Create album art URI
                         Uri albumArtUri = Uri.parse("content://media/external/audio/albumart/" + albumId);
 
                         MusicItem musicItem = new MusicItem(id, title, artist, album, duration, path, albumArtUri);
@@ -479,19 +445,15 @@ public class AlbumDetailActivity extends AppCompatActivity {
                 return;
             }
 
-            // Update UI on main thread
             runOnUiThread(() -> {
                 showLoading(false);
                 isLoading = false;
 
-                // Update current list
                 albumSongs.clear();
                 albumSongs.addAll(tempSongsList);
 
-                // Update song count
                 songCountTextView.setText(albumSongs.size() + " songs");
 
-                // Update the adapter
                 if (musicAdapter != null) {
                     musicAdapter.notifyDataSetChanged();
                 }
@@ -540,21 +502,16 @@ public class AlbumDetailActivity extends AppCompatActivity {
             selectedIndex = 0;
         }
 
-        // First, set the album playlist in the service
         Intent playlistIntent = new Intent(this, MusicService.class);
         playlistIntent.setAction(MusicService.ACTION_SET_PLAYLIST);
         playlistIntent.putParcelableArrayListExtra("playlist", new ArrayList<>(albumSongs));
         playlistIntent.putExtra("start_index", selectedIndex);
         startService(playlistIntent);
 
-        // Then, play the selected song
         Intent playIntent = new Intent(this, MusicService.class);
         playIntent.setAction(MusicService.ACTION_PLAY);
         playIntent.putExtra("music_item", selectedSong);
         startService(playIntent);
-
-        Log.d(TAG, "Started music service with album playlist of " +
-                albumSongs.size() + " songs, selected index: " + selectedIndex);
     }
 
     private void openNowPlaying(MusicItem musicItem) {
@@ -562,7 +519,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
         intent.putExtra("music_item", (Parcelable) musicItem);
         startActivity(intent);
 
-        // Add slide up animation
         overridePendingTransition(
                 R.anim.slide_in_bottom,
                 R.anim.slide_out_top
@@ -579,7 +535,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
             intent.putExtra("music_item", currentPlayingItem);
             startActivity(intent);
 
-            // Add slide up animation
             overridePendingTransition(
                     R.anim.slide_in_bottom,
                     R.anim.slide_out_top
@@ -590,7 +545,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        // Show/hide empty state
         if (albumSongs.isEmpty()) {
             emptyState.setVisibility(View.VISIBLE);
             songsRecyclerView.setVisibility(View.GONE);
@@ -611,7 +565,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
     }
 
     private void adjustRecyclerViewPadding(boolean isVisible, int height) {
-        // Adjust RecyclerView padding to accommodate mini player
         if (songsRecyclerView != null) {
             songsRecyclerView.setPadding(
                     songsRecyclerView.getPaddingLeft(),
@@ -620,7 +573,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
                     isVisible ? height : 0
             );
 
-            // Ensure smooth scrolling after padding change
             songsRecyclerView.post(() -> {
                 if (songsRecyclerView.getAdapter() != null) {
                     songsRecyclerView.getAdapter().notifyDataSetChanged();
@@ -639,7 +591,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
                 filter.addAction(MusicService.ACTION_HIDE_MINI_PLAYER);
                 filter.addAction("MINI_PLAYER_VISIBILITY_CHANGED");
 
-                // For Android 13+ (API 33+), specify RECEIVER_NOT_EXPORTED since these are internal app broadcasts
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                     registerReceiver(musicUpdateReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
                 } else {
@@ -647,7 +598,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
                 }
 
                 isReceiverRegistered = true;
-                Log.d(TAG, "Music update receiver registered successfully");
             }
         } catch (Exception e) {
             Log.e(TAG, "Error registering broadcast receiver: " + e.getMessage(), e);
@@ -656,7 +606,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
     }
 
     public void showMiniPlayer(MusicItem musicItem) {
-        // Check if activity is still valid
         if (isActivityDestroyed || isFinishing() || isDestroyed() || musicItem == null) {
             return;
         }
@@ -664,18 +613,15 @@ public class AlbumDetailActivity extends AppCompatActivity {
         try {
             currentPlayingItem = musicItem;
 
-            // Validate UI components before updating
             if (miniSongTitle == null || miniArtistName == null ||
                     miniAlbumArt == null || miniPlayerContainer == null) {
                 Log.e(TAG, "Mini player components are null");
                 return;
             }
 
-            // Update mini player UI
             miniSongTitle.setText(musicItem.getTitle());
             miniArtistName.setText(musicItem.getArtist());
 
-            // Load album art with error handling
             try {
                 Glide.with(this)
                         .load(musicItem.getAlbumArtUri())
@@ -683,7 +629,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
                         .error(R.drawable.ic_outline_music_note_24)
                         .into(miniAlbumArt);
 
-                // Ensure the animator is set up after the ImageView is ready
                 if (albumArtRotationAnimator == null) {
                     setupAlbumArtRotationAnimator();
                 }
@@ -691,7 +636,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
                 Log.e(TAG, "Error loading album art: " + e.getMessage(), e);
             }
 
-            // Show mini player with animation
             if (!isMiniPlayerVisible) {
                 isMiniPlayerVisible = true;
                 miniPlayerContainer.setVisibility(View.VISIBLE);
@@ -702,7 +646,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
                         .start();
             }
 
-            // Update play button state and start rotation if playing
             updateMiniPlayerPlayButton();
         } catch (Exception e) {
             Log.e(TAG, "Error showing mini player: " + e.getMessage(), e);
@@ -715,7 +658,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
         }
 
         try {
-            // Stop album art rotation when hiding mini player
             stopAlbumArtRotation();
 
             if (isMiniPlayerVisible && miniPlayerContainer != null) {
@@ -741,16 +683,12 @@ public class AlbumDetailActivity extends AppCompatActivity {
         }
 
         try {
-            Log.d(TAG, "Updating mini player state - playing: " + playing);
             isPlaying = playing;
             updateMiniPlayerPlayButton();
 
-            // Control album art rotation based on playing state
             if (playing && isMiniPlayerVisible) {
-                Log.d(TAG, "Starting rotation because music is playing and mini player is visible");
                 startAlbumArtRotation();
             } else {
-                Log.d(TAG, "Stopping rotation - playing: " + playing + ", visible: " + isMiniPlayerVisible);
                 stopAlbumArtRotation();
             }
         } catch (Exception e) {
@@ -785,12 +723,10 @@ public class AlbumDetailActivity extends AppCompatActivity {
         super.onResume();
 
         try {
-            // Request current state from music service
             Intent serviceIntent = new Intent(this, MusicService.class);
             serviceIntent.setAction(MusicService.ACTION_REQUEST_STATE);
             startService(serviceIntent);
 
-            // Resume album art rotation if music is playing
             if (isPlaying && isMiniPlayerVisible) {
                 startAlbumArtRotation();
             }
@@ -802,12 +738,10 @@ public class AlbumDetailActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        // Cancel any ongoing animations to prevent crashes
         try {
             if (miniPlayerContainer != null) {
                 miniPlayerContainer.clearAnimation();
             }
-            // Pause album art rotation to save battery
             if (albumArtRotationAnimator != null && albumArtRotationAnimator.isRunning()) {
                 albumArtRotationAnimator.pause();
             }
@@ -820,10 +754,8 @@ public class AlbumDetailActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        // Mark activity as destroyed first
         isActivityDestroyed = true;
 
-        // Stop and clean up album art rotation animator
         try {
             if (albumArtRotationAnimator != null) {
                 albumArtRotationAnimator.cancel();
@@ -833,11 +765,9 @@ public class AlbumDetailActivity extends AppCompatActivity {
             Log.e(TAG, "Error cleaning up rotation animator: " + e.getMessage(), e);
         }
 
-        // Unregister broadcast receiver with safety checks
         if (isReceiverRegistered && musicUpdateReceiver != null) {
             try {
                 unregisterReceiver(musicUpdateReceiver);
-                Log.d(TAG, "Music update receiver unregistered successfully");
             } catch (IllegalArgumentException e) {
                 Log.w(TAG, "Receiver was not registered or already unregistered");
             } catch (Exception e) {
@@ -847,18 +777,15 @@ public class AlbumDetailActivity extends AppCompatActivity {
             }
         }
 
-        // Shutdown executor service
         if (executorService != null && !executorService.isShutdown()) {
             executorService.shutdown();
         }
 
-        // Clear references to prevent memory leaks
         try {
             currentPlayingItem = null;
             musicUpdateReceiver = null;
             albumSongs = null;
 
-            // Clear Glide to prevent memory leaks
             if (!isDestroyed()) {
                 Glide.with(this).clear(miniAlbumArt);
                 Glide.with(this).clear(albumArtImageView);

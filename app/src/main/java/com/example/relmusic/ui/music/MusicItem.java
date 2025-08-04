@@ -24,7 +24,6 @@ public class MusicItem implements Parcelable {
         this.albumArtUri = albumArtUri;
     }
 
-    // Parcelable constructor
     protected MusicItem(Parcel in) {
         id = in.readLong();
         title = in.readString();
@@ -63,7 +62,6 @@ public class MusicItem implements Parcelable {
         }
     };
 
-    // Getters
     public long getId() { return id; }
     public String getTitle() { return title; }
     public String getArtist() { return artist; }
@@ -72,7 +70,6 @@ public class MusicItem implements Parcelable {
     public String getPath() { return path; }
     public Uri getAlbumArtUri() { return albumArtUri; }
 
-    // Setters
     public void setId(long id) { this.id = id; }
     public void setTitle(String title) { this.title = title; }
     public void setArtist(String artist) { this.artist = artist; }
