@@ -19,7 +19,6 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <!-- Album Art Container -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -36,7 +35,6 @@
                 android:contentDescription="Album Art"
                 android:background="?attr/colorSurfaceVariant" />
 
-            <!-- Play Button Overlay -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/play_button"
                 style="@style/Widget.Material3.Button.IconButton.Filled"
@@ -53,7 +51,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Album Info -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

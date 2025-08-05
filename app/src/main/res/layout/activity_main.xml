@@ -51,20 +51,6 @@
                         android:alpha="0.0"
                         android:visibility="invisible" />
 
-<!--                    <com.google.android.material.button.MaterialButton-->
-<!--                        android:id="@+id/search_button"-->
-<!--                        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"-->
-<!--                        android:layout_width="45dp"-->
-<!--                        android:layout_height="38dp"-->
-<!--                        app:icon="@drawable/ic_baseline_search_24"-->
-<!--                        app:iconSize="24dp"-->
-<!--                        app:iconGravity="textStart"-->
-<!--                        app:iconTint="?attr/colorOnSurfaceVariant"-->
-<!--                        android:insetTop="0dp"-->
-<!--                        android:insetBottom="0dp"-->
-<!--                        app:cornerRadius="24dp"-->
-<!--                        android:layout_marginEnd="8dp" />-->
-
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/refresh_button"
                         style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
@@ -86,7 +72,6 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Main content area - NO FIXED MARGIN -->
     <fragment
         android:id="@+id/nav_host_fragment_activity_main"
         android:name="androidx.navigation.fragment.NavHostFragment"
@@ -96,7 +81,6 @@
         app:defaultNavHost="true"
         app:navGraph="@navigation/mobile_navigation" />
 
-    <!-- Fixed bottom section -->
     <LinearLayout
         android:id="@+id/bottomContainer"
         android:layout_width="match_parent"
@@ -106,7 +90,6 @@
         android:background="@color/transparent"
         android:elevation="16dp">
 
-        <!-- Mini Player Container -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/miniPlayerContainer"
             android:layout_width="match_parent"

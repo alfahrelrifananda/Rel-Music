@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="?attr/colorSurface">
 
-    <!-- Main Now Playing Container -->
     <LinearLayout
         android:id="@+id/nowPlayingContainer"
         android:layout_width="match_parent"
@@ -15,7 +14,6 @@
         android:background="?attr/colorSurface"
         android:fitsSystemWindows="true">
 
-        <!-- Top Bar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,7 +33,6 @@
 
         </LinearLayout>
 
-        <!-- Album Art Section with 1:1 Aspect Ratio -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -65,7 +62,6 @@
 
         </LinearLayout>
 
-        <!-- Song Information -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -116,7 +112,6 @@
 
         </LinearLayout>
 
-        <!-- Progress Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -167,7 +162,6 @@
 
         </LinearLayout>
 
-        <!-- Control Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

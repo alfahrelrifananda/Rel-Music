@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.album.AlbumDetailActivity">
 
-    <!-- Main Content Container -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,7 +13,6 @@
         android:paddingTop="48dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Toolbar -->
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -24,7 +22,6 @@
             app:navigationIconTint="?attr/colorOnSurface"
             app:titleTextColor="?attr/colorOnSurface" />
 
-        <!-- Album Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -32,7 +29,6 @@
             android:padding="16dp"
             android:background="?attr/colorSurface">
 
-            <!-- Album Art -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="80dp"
                 android:layout_height="80dp"
@@ -48,7 +44,6 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Album Info -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -57,7 +52,6 @@
                 android:orientation="vertical"
                 android:layout_gravity="center_vertical">
 
-                <!-- Album Title -->
                 <TextView
                     android:id="@+id/albumTitleTextView"
                     android:layout_width="match_parent"
@@ -69,7 +63,6 @@
                     android:textStyle="bold"
                     tools:text="Album Name" />
 
-                <!-- Artist Name -->
                 <TextView
                     android:id="@+id/albumArtistTextView"
                     android:layout_width="match_parent"
@@ -81,7 +74,6 @@
                     android:textColor="?attr/colorOnSurfaceVariant"
                     tools:text="Artist Name" />
 
-                <!-- Song Count -->
                 <TextView
                     android:id="@+id/songCountTextView"
                     android:layout_width="wrap_content"
@@ -95,19 +87,16 @@
 
         </LinearLayout>
 
-        <!-- Divider -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="?attr/colorOutlineVariant" />
 
-        <!-- Content Container -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
 
-            <!-- Songs RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/songsRecyclerView"
                 android:layout_width="match_parent"
@@ -117,7 +106,6 @@
                 android:paddingBottom="100dp"
                 tools:listitem="@layout/item_music" />
 
-            <!-- Loading Layout -->
             <LinearLayout
                 android:id="@+id/loadingLayout"
                 android:layout_width="match_parent"
@@ -142,7 +130,6 @@
 
             </LinearLayout>
 
-            <!-- Empty State -->
             <LinearLayout
                 android:id="@+id/emptyState"
                 android:layout_width="match_parent"
@@ -182,7 +169,6 @@
 
     </LinearLayout>
 
-    <!-- Mini Player Container (Fixed at Bottom) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/miniPlayerContainer"
         android:layout_width="match_parent"

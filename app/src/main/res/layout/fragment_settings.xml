@@ -34,7 +34,6 @@
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="?attr/colorPrimary" />
 
-            <!-- Scan Music Folders -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/scan_folders_card"
                 android:layout_width="match_parent"
@@ -123,7 +122,6 @@
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="?attr/colorPrimary" />
 
-            <!-- Theme Settings -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/theme_card"
                 android:layout_width="match_parent"
