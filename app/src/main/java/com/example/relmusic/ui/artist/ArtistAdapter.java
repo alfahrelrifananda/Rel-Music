@@ -53,14 +53,13 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
         holder.artistNameTextView.setText(artistItem.getArtistName());
         holder.songCountTextView.setText(artistItem.getFormattedSongCount());
 
-        // Load artist image (using album art as placeholder for artist image)
         Glide.with(context)
                 .load(artistItem.getArtistImageUri())
                 .apply(new RequestOptions()
                         .placeholder(R.drawable.ic_outline_person_24)
                         .error(R.drawable.ic_outline_person_24)
                         .centerCrop()
-                        .circleCrop()) // Make it circular for artist images
+                        .circleCrop())
                 .into(holder.artistImageView);
 
         holder.itemView.setOnClickListener(v -> {

@@ -291,7 +291,6 @@ public class ArtistFragment extends Fragment {
                                 !artistName.equals("<unknown>")) {
 
                             if (!artistMap.containsKey(artistName)) {
-                                // Use the first album art found for this artist
                                 Uri albumArtUri = Uri.parse("content://media/external/audio/albumart/" + albumId);
 
                                 ArtistItem artistItem = new ArtistItem(

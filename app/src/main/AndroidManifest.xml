@@ -35,12 +35,8 @@
             android:screenOrientation="portrait"
             android:launchMode="singleTop" />
 
-        <activity
-            android:name=".ui.album.AlbumDetailActivity"
-            />
-        <activity
-            android:name=".ui.artist.ArtistDetailActivity"
-            />
+        <activity android:name=".ui.album.AlbumDetailActivity" />
+        <activity android:name=".ui.artist.ArtistDetailActivity" />
         <service
             android:name=".service.MusicService"
             android:enabled="true"

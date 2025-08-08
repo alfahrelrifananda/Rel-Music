@@ -220,24 +220,35 @@ public class MainActivity extends AppCompatActivity {
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 
             com.example.relmusic.ui.album.AlbumFragment.clearCache();
+            com.example.relmusic.ui.artist.ArtistFragment.clearCache();
 
             if (navController.getCurrentDestination() != null &&
                     navController.getCurrentDestination().getId() == R.id.navigation_music) {
 
                 refreshCurrentFragment("MusicFragment");
                 refreshAlbumFragmentInBackground();
-                Toast.makeText(this, "Refreshing music and album library...", Toast.LENGTH_SHORT).show();
+                refreshArtistFragmentInBackground();
+                Toast.makeText(this, "Refreshing music, album, and artist library...", Toast.LENGTH_SHORT).show();
 
             } else if (navController.getCurrentDestination() != null &&
                     navController.getCurrentDestination().getId() == R.id.navigation_album) {
 
                 refreshCurrentFragment("AlbumFragment");
                 refreshMusicFragmentInBackground();
-                Toast.makeText(this, "Refreshing album and music library...", Toast.LENGTH_SHORT).show();
+                refreshArtistFragmentInBackground();
+                Toast.makeText(this, "Refreshing album, music, and artist library...", Toast.LENGTH_SHORT).show();
+
+            } else if (navController.getCurrentDestination() != null &&
+                    navController.getCurrentDestination().getId() == R.id.navigation_artist) {
+
+                refreshCurrentFragment("ArtistFragment");
+                refreshMusicFragmentInBackground();
+                refreshAlbumFragmentInBackground();
+                Toast.makeText(this, "Refreshing artist, music, and album library...", Toast.LENGTH_SHORT).show();
 
             } else {
                 refreshAllFragments();
-                Toast.makeText(this, "Refreshing music and album library...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Refreshing music, album, and artist library...", Toast.LENGTH_SHORT).show();
             }
 
         } catch (Exception e) {
@@ -274,12 +285,43 @@ public class MainActivity extends AppCompatActivity {
                     com.example.relmusic.ui.album.AlbumFragment albumFragment =
                             (com.example.relmusic.ui.album.AlbumFragment) currentFragment;
                     albumFragment.refreshData();
+
+                } else if (expectedFragmentType.equals("ArtistFragment") &&
+                        currentFragment instanceof com.example.relmusic.ui.artist.ArtistFragment) {
+
+                    com.example.relmusic.ui.artist.ArtistFragment artistFragment =
+                            (com.example.relmusic.ui.artist.ArtistFragment) currentFragment;
+                    artistFragment.refreshData();
                 }
             }
         } catch (Exception e) {
             Log.e(TAG, "Error refreshing current fragment: " + e.getMessage(), e);
         }
     }
+
+    private void refreshArtistFragmentInBackground() {
+        try {
+            androidx.fragment.app.Fragment navHostFragment = getSupportFragmentManager()
+                    .findFragmentById(R.id.nav_host_fragment_activity_main);
+
+            if (navHostFragment != null) {
+                java.util.List<androidx.fragment.app.Fragment> childFragments =
+                        navHostFragment.getChildFragmentManager().getFragments();
+
+                for (androidx.fragment.app.Fragment fragment : childFragments) {
+                    if (fragment instanceof com.example.relmusic.ui.artist.ArtistFragment) {
+                        com.example.relmusic.ui.artist.ArtistFragment artistFragment =
+                                (com.example.relmusic.ui.artist.ArtistFragment) fragment;
+                        artistFragment.refreshData();
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error refreshing artist fragment in background: " + e.getMessage(), e);
+        }
+    }
+
 
     private void refreshAlbumFragmentInBackground() {
         try {
@@ -344,15 +386,21 @@ public class MainActivity extends AppCompatActivity {
                 new android.os.Handler().postDelayed(() -> {
                     refreshCurrentFragment("AlbumFragment");
 
-                    if (currentDestination != R.id.navigation_album) {
-                        new android.os.Handler().postDelayed(() -> {
-                            try {
-                                navController.navigate(currentDestination);
-                            } catch (Exception e) {
-                                Log.e(TAG, "Error navigating back: " + e.getMessage(), e);
-                            }
-                        }, 300);
-                    }
+                    navController.navigate(R.id.navigation_artist);
+
+                    new android.os.Handler().postDelayed(() -> {
+                        refreshCurrentFragment("ArtistFragment");
+
+                        if (currentDestination != R.id.navigation_artist) {
+                            new android.os.Handler().postDelayed(() -> {
+                                try {
+                                    navController.navigate(currentDestination);
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Error navigating back: " + e.getMessage(), e);
+                                }
+                            }, 300);
+                        }
+                    }, 300);
                 }, 300);
             }, 300);
 

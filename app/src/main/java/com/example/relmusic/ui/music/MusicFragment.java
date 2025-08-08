@@ -302,19 +302,11 @@ public class MusicFragment extends Fragment {
                 showRefreshComplete(true);
 
                 int newCount = tempMusicList.size();
-                if (newCount > previousSize) {
-                    Toast.makeText(getContext(),
-                            "Found " + (newCount - previousSize) + " new songs",
-                            Toast.LENGTH_SHORT).show();
-                } else if (newCount == previousSize && previousSize > 0) {
+                if (newCount == previousSize && previousSize > 0) {
                     Toast.makeText(getContext(),
                             "Music library is up to date (" + newCount + " songs)",
                             Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getContext(),
-                            "Loaded " + newCount + " songs",
-                            Toast.LENGTH_SHORT).show();
-                }
+                } 
             });
         });
     }

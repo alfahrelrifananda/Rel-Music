@@ -340,8 +340,7 @@ public class ArtistDetailActivity extends AppCompatActivity {
                         .apply(new RequestOptions()
                                 .placeholder(R.drawable.ic_outline_person_24)
                                 .error(R.drawable.ic_outline_person_24)
-                                .centerCrop()
-                                .circleCrop()) // Make it circular for artist images
+                                .centerCrop())
                         .into(artistImageView);
             } else {
                 artistImageView.setImageResource(R.drawable.ic_outline_person_24);

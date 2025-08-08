@@ -18,18 +18,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="8dp"
             android:gravity="center_vertical">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/backButton"
                 style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="96dp"
+                app:rippleColor="@color/transparent"
+                android:layout_height="64dp"
+                app:iconTintMode="multiply"
                 app:icon="@drawable/ic_baseline_arrow_back_24"
-                app:iconSize="24dp"
-                app:iconTint="?attr/colorOnSurface"
-                android:contentDescription="Back" />
+                app:iconSize="48dp" />
 
         </LinearLayout>
 
