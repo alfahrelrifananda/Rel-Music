@@ -711,6 +711,8 @@ public class MainActivity extends AppCompatActivity {
                 currentTitle = "Albums";
             } else if (destinationId == R.id.navigation_settings) {
                 currentTitle = "Settings";
+            } else if (destinationId == R.id.navigation_artist) {
+                currentTitle = "Artist";
             } else {
                 currentTitle = "RelMusic";
             }

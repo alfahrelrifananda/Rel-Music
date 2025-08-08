@@ -38,6 +38,9 @@
         <activity
             android:name=".ui.album.AlbumDetailActivity"
             />
+        <activity
+            android:name=".ui.artist.ArtistDetailActivity"
+            />
         <service
             android:name=".service.MusicService"
             android:enabled="true"

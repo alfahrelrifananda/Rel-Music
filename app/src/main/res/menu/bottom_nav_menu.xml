@@ -16,4 +16,9 @@
 <!--        android:icon="@drawable/settings_outline_settings_input_component_24"-->
 <!--        android:title="@string/title_settings" />-->
 
+    <item
+        android:id="@+id/navigation_artist"
+        android:icon="@drawable/ic_outline_artist_24"
+        android:title="@string/title_artist" />
+
 </menu>

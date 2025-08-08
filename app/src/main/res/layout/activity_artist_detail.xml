@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:background="?attr/colorSurfaceContainerHigh"
-    tools:context=".ui.album.AlbumDetailActivity">
+    tools:context=".ui.artist.ArtistDetailActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -22,16 +22,15 @@
             app:statusBarScrim="?attr/colorSurface">
 
             <ImageView
-                android:id="@+id/albumBackgroundImageView"
+                android:id="@+id/artistBackgroundImageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:fitsSystemWindows="true"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="0.7"
-                tools:src="@drawable/ic_outline_album_24"
-                android:contentDescription="Album background image" />
-
+                tools:src="@drawable/ic_outline_person_24"
+                android:contentDescription="Artist background image" />
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
@@ -72,7 +71,7 @@
                     android:layout_gravity="center_vertical">
 
                     <TextView
-                        android:id="@+id/albumTitleTextView"
+                        android:id="@+id/artistNameTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
@@ -80,17 +79,6 @@
                         android:textAppearance="?attr/textAppearanceTitleMedium"
                         android:textColor="?attr/colorOnSurface"
                         android:textStyle="bold"
-                        tools:text="Album Name" />
-
-                    <TextView
-                        android:id="@+id/albumArtistTextView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:textAppearance="?attr/textAppearanceBodyMedium"
-                        android:textColor="?attr/colorOnSurfaceVariant"
                         tools:text="Artist Name" />
 
                     <TextView
@@ -100,7 +88,7 @@
                         android:layout_marginTop="2dp"
                         android:textAppearance="?attr/textAppearanceBodySmall"
                         android:textColor="?attr/colorOnSurfaceVariant"
-                        tools:text="12 songs" />
+                        tools:text="25 songs" />
 
                 </LinearLayout>
 
@@ -172,7 +160,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="This album doesn't contain any songs"
+                        android:text="This artist has no songs available"
                         android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:textAlignment="center"

@@ -1,4 +1,4 @@
-package com.example.relmusic.ui.album;
+package com.example.relmusic.ui.artist;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
@@ -45,14 +45,13 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AlbumDetailActivity extends AppCompatActivity {
+public class ArtistDetailActivity extends AppCompatActivity {
 
-    private static final String TAG = "AlbumDetailActivity";
+    private static final String TAG = "ArtistDetailActivity";
 
     private MaterialToolbar toolbar;
-    private ImageView albumArtImageView;
-    private TextView albumTitleTextView;
-    private TextView albumArtistTextView;
+    private ImageView artistImageView;
+    private TextView artistNameTextView;
     private TextView songCountTextView;
     private RecyclerView songsRecyclerView;
     private View loadingLayout;
@@ -66,8 +65,8 @@ public class AlbumDetailActivity extends AppCompatActivity {
     private MaterialButton miniNextButton;
     private MaterialButton miniCloseButton;
 
-    private AlbumItem albumItem;
-    private List<MusicItem> albumSongs = new ArrayList<>();
+    private ArtistItem artistItem;
+    private List<MusicItem> artistSongs = new ArrayList<>();
     private MusicAdapter musicAdapter;
     private ExecutorService executorService;
     private boolean isLoading = false;
@@ -122,12 +121,12 @@ public class AlbumDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_album_detail);
+        setContentView(R.layout.activity_artist_detail);
 
         try {
             executorService = Executors.newSingleThreadExecutor();
 
-            if (!getAlbumDataFromIntent()) {
+            if (!getArtistDataFromIntent()) {
                 finish();
                 return;
             }
@@ -145,10 +144,10 @@ public class AlbumDetailActivity extends AppCompatActivity {
             }
 
             setupToolbar();
-            setupAlbumHeader();
+            setupArtistHeader();
             setupRecyclerView();
 
-            loadAlbumSongs();
+            loadArtistSongs();
 
             registerMusicUpdateReceiver();
 
@@ -158,10 +157,10 @@ public class AlbumDetailActivity extends AppCompatActivity {
         }
     }
 
-    private boolean getAlbumDataFromIntent() {
-        albumItem = getIntent().getParcelableExtra("album_item");
-        if (albumItem == null) {
-            Toast.makeText(this, "Error: Album not found", Toast.LENGTH_SHORT).show();
+    private boolean getArtistDataFromIntent() {
+        artistItem = getIntent().getParcelableExtra("artist_item");
+        if (artistItem == null) {
+            Toast.makeText(this, "Error: Artist not found", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
@@ -170,18 +169,17 @@ public class AlbumDetailActivity extends AppCompatActivity {
     private boolean initializeViews() {
         try {
             toolbar = findViewById(R.id.toolbar);
-            albumArtImageView = findViewById(R.id.albumBackgroundImageView);
-            albumTitleTextView = findViewById(R.id.albumTitleTextView);
-            albumArtistTextView = findViewById(R.id.albumArtistTextView);
+            artistImageView = findViewById(R.id.artistBackgroundImageView);
+            artistNameTextView = findViewById(R.id.artistNameTextView);
             songCountTextView = findViewById(R.id.songCountTextView);
             songsRecyclerView = findViewById(R.id.songsRecyclerView);
             loadingLayout = findViewById(R.id.loadingLayout);
             emptyState = findViewById(R.id.emptyState);
 
-            if (toolbar == null || albumArtImageView == null || albumTitleTextView == null ||
-                    albumArtistTextView == null || songCountTextView == null ||
-                    songsRecyclerView == null || loadingLayout == null || emptyState == null) {
-                Log.e(TAG, "One or more album views are null");
+            if (toolbar == null || artistImageView == null || artistNameTextView == null ||
+                    songCountTextView == null || songsRecyclerView == null ||
+                    loadingLayout == null || emptyState == null) {
+                Log.e(TAG, "One or more artist views are null");
                 return false;
             }
 
@@ -332,30 +330,30 @@ public class AlbumDetailActivity extends AppCompatActivity {
         }
     }
 
-    private void setupAlbumHeader() {
+    private void setupArtistHeader() {
         try {
-            albumTitleTextView.setText(albumItem.getAlbumName());
-            albumArtistTextView.setText(albumItem.getArtistName());
+            artistNameTextView.setText(artistItem.getArtistName());
 
-            if (albumItem.getAlbumArtUri() != null) {
+            if (artistItem.getArtistImageUri() != null) {
                 Glide.with(this)
-                        .load(albumItem.getAlbumArtUri())
+                        .load(artistItem.getArtistImageUri())
                         .apply(new RequestOptions()
-                                .placeholder(R.drawable.ic_outline_album_24)
-                                .error(R.drawable.ic_outline_album_24)
-                                .centerCrop())
-                        .into(albumArtImageView);
+                                .placeholder(R.drawable.ic_outline_person_24)
+                                .error(R.drawable.ic_outline_person_24)
+                                .centerCrop()
+                                .circleCrop()) // Make it circular for artist images
+                        .into(artistImageView);
             } else {
-                albumArtImageView.setImageResource(R.drawable.ic_outline_album_24);
+                artistImageView.setImageResource(R.drawable.ic_outline_person_24);
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error setting up album header: " + e.getMessage(), e);
+            Log.e(TAG, "Error setting up artist header: " + e.getMessage(), e);
         }
     }
 
     private void setupRecyclerView() {
         try {
-            musicAdapter = new MusicAdapter(albumSongs, this);
+            musicAdapter = new MusicAdapter(artistSongs, this);
             songsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             songsRecyclerView.setAdapter(musicAdapter);
 
@@ -375,7 +373,7 @@ public class AlbumDetailActivity extends AppCompatActivity {
         }
     }
 
-    private void loadAlbumSongs() {
+    private void loadArtistSongs() {
         if (!hasStoragePermission()) {
             Toast.makeText(this, "Storage permission required to load songs", Toast.LENGTH_SHORT).show();
             return;
@@ -404,9 +402,10 @@ public class AlbumDetailActivity extends AppCompatActivity {
             };
 
             String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0 AND " +
-                    MediaStore.Audio.Media.ALBUM_ID + " = ?";
-            String[] selectionArgs = {String.valueOf(albumItem.getAlbumId())};
-            String sortOrder = MediaStore.Audio.Media.TRACK + " ASC, " +
+                    MediaStore.Audio.Media.ARTIST + " = ?";
+            String[] selectionArgs = {artistItem.getArtistName()};
+            String sortOrder = MediaStore.Audio.Media.ALBUM + " ASC, " +
+                    MediaStore.Audio.Media.TRACK + " ASC, " +
                     MediaStore.Audio.Media.TITLE + " ASC";
 
             try (Cursor cursor = contentResolver.query(musicUri, projection, selection, selectionArgs, sortOrder)) {
@@ -440,7 +439,7 @@ public class AlbumDetailActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     showLoading(false);
                     isLoading = false;
-                    Toast.makeText(this, "Error loading album songs", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Error loading artist songs", Toast.LENGTH_SHORT).show();
                 });
                 return;
             }
@@ -449,10 +448,10 @@ public class AlbumDetailActivity extends AppCompatActivity {
                 showLoading(false);
                 isLoading = false;
 
-                albumSongs.clear();
-                albumSongs.addAll(tempSongsList);
+                artistSongs.clear();
+                artistSongs.addAll(tempSongsList);
 
-                songCountTextView.setText(albumSongs.size() + " songs");
+                songCountTextView.setText(artistSongs.size() + " songs");
 
                 if (musicAdapter != null) {
                     musicAdapter.notifyDataSetChanged();
@@ -486,13 +485,13 @@ public class AlbumDetailActivity extends AppCompatActivity {
     }
 
     private void startMusicServiceWithPlaylist(MusicItem selectedSong) {
-        if (albumSongs.isEmpty()) {
+        if (artistSongs.isEmpty()) {
             return;
         }
 
         int selectedIndex = -1;
-        for (int i = 0; i < albumSongs.size(); i++) {
-            if (albumSongs.get(i).getId() == selectedSong.getId()) {
+        for (int i = 0; i < artistSongs.size(); i++) {
+            if (artistSongs.get(i).getId() == selectedSong.getId()) {
                 selectedIndex = i;
                 break;
             }
@@ -504,7 +503,7 @@ public class AlbumDetailActivity extends AppCompatActivity {
 
         Intent playlistIntent = new Intent(this, MusicService.class);
         playlistIntent.setAction(MusicService.ACTION_SET_PLAYLIST);
-        playlistIntent.putParcelableArrayListExtra("playlist", new ArrayList<>(albumSongs));
+        playlistIntent.putParcelableArrayListExtra("playlist", new ArrayList<>(artistSongs));
         playlistIntent.putExtra("start_index", selectedIndex);
         startService(playlistIntent);
 
@@ -545,7 +544,7 @@ public class AlbumDetailActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        if (albumSongs.isEmpty()) {
+        if (artistSongs.isEmpty()) {
             emptyState.setVisibility(View.VISIBLE);
             songsRecyclerView.setVisibility(View.GONE);
         } else {
@@ -784,11 +783,11 @@ public class AlbumDetailActivity extends AppCompatActivity {
         try {
             currentPlayingItem = null;
             musicUpdateReceiver = null;
-            albumSongs = null;
+            artistSongs = null;
 
             if (!isDestroyed()) {
                 Glide.with(this).clear(miniAlbumArt);
-                Glide.with(this).clear(albumArtImageView);
+                Glide.with(this).clear(artistImageView);
             }
         } catch (Exception e) {
             Log.e(TAG, "Error clearing references: " + e.getMessage(), e);
