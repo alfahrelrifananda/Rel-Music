@@ -23,7 +23,35 @@ public class SettingsFragment extends Fragment {
         binding = FragmentSettingsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        setupCardListeners();
+
         return root;
+    }
+
+    private void setupCardListeners() {
+        binding.scanFoldersCard.setOnClickListener(v -> {
+            // TODO: Implement scan folders functionality
+        });
+
+        binding.themeCard.setOnClickListener(v -> {
+            // TODO: Implement theme selection functionality
+        });
+
+        binding.helpCard.setOnClickListener(v -> {
+            // TODO: Implement help & FAQ functionality
+        });
+
+        binding.feedbackCard.setOnClickListener(v -> {
+            // TODO: Implement send feedback functionality
+        });
+
+        binding.aboutCard.setOnClickListener(v -> {
+            // TODO: Implement about page functionality
+        });
+
+        binding.privacyCard.setOnClickListener(v -> {
+            // TODO: Implement privacy policy functionality
+        });
     }
 
     @Override

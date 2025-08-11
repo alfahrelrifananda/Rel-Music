@@ -15,7 +15,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,7 +36,7 @@ import com.example.relmusic.service.MusicService;
 import com.example.relmusic.ui.music.MusicItem;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.MaterialColors;
-import com.google.android.material.slider.Slider;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import java.util.concurrent.TimeUnit;
 
@@ -121,7 +126,7 @@ public class NowPlayingActivity extends AppCompatActivity {
         }
 
         setupClickListeners();
-        setupSlider();
+        setupProgressIndicator();
         bindToMusicService();
         registerMusicUpdateReceiver();
     }
@@ -182,6 +187,7 @@ public class NowPlayingActivity extends AppCompatActivity {
     }
 
     private void loadAlbumArt() {
+        // Load the main album art
         Glide.with(this)
                 .asBitmap()
                 .load(currentSong.getAlbumArtUri())
@@ -191,6 +197,9 @@ public class NowPlayingActivity extends AppCompatActivity {
                     @Override
                     public void onResourceReady(Bitmap bitmap, Transition<? super Bitmap> transition) {
                         binding.albumArt.setImageBitmap(bitmap);
+
+                        // Apply blur effect to the background
+                        applyBlurredBackground(bitmap);
 
                         Palette.from(bitmap).generate(palette -> {
                             if (palette != null) {
@@ -202,8 +211,70 @@ public class NowPlayingActivity extends AppCompatActivity {
                     @Override
                     public void onLoadCleared(Drawable placeholder) {
                         binding.albumArt.setImageDrawable(placeholder);
+                        // Set a default blurred background
+                        binding.blurredBackground.setImageResource(R.drawable.ic_outline_music_note_24);
                     }
                 });
+    }
+
+    private void applyBlurredBackground(Bitmap originalBitmap) {
+        try {
+            // Create a blurred version of the bitmap
+            Bitmap blurredBitmap = blurBitmap(originalBitmap, 25f);
+
+            // Set the blurred bitmap as background
+            binding.blurredBackground.setImageBitmap(blurredBitmap);
+
+        } catch (Exception e) {
+            Log.e("NowPlayingActivity", "Error applying blur effect: " + e.getMessage(), e);
+            // Fallback: use the original image with reduced alpha
+            binding.blurredBackground.setImageBitmap(originalBitmap);
+            binding.blurredBackground.setAlpha(0.3f);
+        }
+    }
+
+    private Bitmap blurBitmap(Bitmap bitmap, float radius) {
+        // Create a copy of the bitmap
+        Bitmap outputBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), bitmap.getConfig());
+
+        // Create RenderScript context
+        RenderScript rs = RenderScript.create(this);
+
+        try {
+            // Create blur script
+            ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+
+            // Create allocations for input and output
+            Allocation inputAllocation = Allocation.createFromBitmap(rs, bitmap);
+            Allocation outputAllocation = Allocation.createFromBitmap(rs, outputBitmap);
+
+            // Set blur radius (1.0 - 25.0)
+            blurScript.setRadius(Math.min(25f, Math.max(1f, radius)));
+
+            // Set input allocation
+            blurScript.setInput(inputAllocation);
+
+            // Execute the script
+            blurScript.forEach(outputAllocation);
+
+            // Copy output to bitmap
+            outputAllocation.copyTo(outputBitmap);
+
+            // Cleanup allocations
+            inputAllocation.destroy();
+            outputAllocation.destroy();
+            blurScript.destroy();
+
+        } catch (Exception e) {
+            Log.e("NowPlayingActivity", "RenderScript blur failed: " + e.getMessage(), e);
+            // Fallback: return original bitmap
+            return bitmap;
+        } finally {
+            // Cleanup RenderScript
+            rs.destroy();
+        }
+
+        return outputBitmap;
     }
 
     private void applyDynamicColors(Palette palette) {
@@ -220,27 +291,28 @@ public class NowPlayingActivity extends AppCompatActivity {
             accentColor = dominantSwatch.getRgb();
         }
 
+        int whiteColor = Color.WHITE;
         int blackColor = Color.BLACK;
 
-        binding.seekBar.setThumbTintList(android.content.res.ColorStateList.valueOf(accentColor));
-        binding.seekBar.setTrackActiveTintList(android.content.res.ColorStateList.valueOf(accentColor));
+        // Update progress indicator colors
+        binding.seekBar.setIndicatorColor(accentColor);
+        binding.seekBar.setTrackColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorOutlineVariant, 0));
 
+        // Update button colors with better contrast
         binding.playPauseButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(accentColor));
-        binding.playPauseButton.setIconTint(android.content.res.ColorStateList.valueOf(blackColor));
+        binding.playPauseButton.setIconTint(android.content.res.ColorStateList.valueOf(whiteColor));
 
         binding.previousButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(accentColor));
-        binding.previousButton.setIconTint(android.content.res.ColorStateList.valueOf(blackColor));
+        binding.previousButton.setIconTint(android.content.res.ColorStateList.valueOf(whiteColor));
 
         binding.nextButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(accentColor));
-        binding.nextButton.setIconTint(android.content.res.ColorStateList.valueOf(blackColor));
+        binding.nextButton.setIconTint(android.content.res.ColorStateList.valueOf(whiteColor));
 
         binding.shuffleButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(accentColor));
-        binding.shuffleButton.setIconTint(android.content.res.ColorStateList.valueOf(blackColor));
+        binding.shuffleButton.setIconTint(android.content.res.ColorStateList.valueOf(whiteColor));
 
         binding.repeatButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(accentColor));
-        binding.repeatButton.setIconTint(android.content.res.ColorStateList.valueOf(blackColor));
-
-        binding.nowPlayingContainer.setBackgroundColor(surfaceColor);
+        binding.repeatButton.setIconTint(android.content.res.ColorStateList.valueOf(whiteColor));
     }
 
     private void setupClickListeners() {
@@ -253,38 +325,70 @@ public class NowPlayingActivity extends AppCompatActivity {
         binding.repeatButton.setOnClickListener(v -> toggleRepeat());
     }
 
-    private void setupSlider() {
-        binding.seekBar.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
-            @Override
-            public void onStartTrackingTouch(Slider slider) {
-                isDraggingSeekBar = true;
-            }
+    @SuppressLint("ClickableViewAccessibility")
+    private void setupProgressIndicator() {
+        binding.seekBar.setIndeterminate(false);
 
-            @Override
-            public void onStopTrackingTouch(Slider slider) {
-                if (musicService != null && musicService.getMediaPlayer() != null) {
-                    MediaPlayer mediaPlayer = musicService.getMediaPlayer();
-                    int seekPosition = (int) ((slider.getValue() / 100.0) * mediaPlayer.getDuration());
-                    mediaPlayer.seekTo(seekPosition);
-                }
-                isDraggingSeekBar = false;
+        binding.seekBar.setOnTouchListener((v, event) -> {
+            int leftPadding = v.getPaddingLeft();
+            int rightPadding = v.getPaddingRight();
+            int usableWidth = v.getWidth() - leftPadding - rightPadding;
+            float adjustedX = event.getX() - leftPadding;
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    isDraggingSeekBar = true;
+                    handleProgressTouch(adjustedX, usableWidth);
+                    return true;
+
+                case MotionEvent.ACTION_MOVE:
+                    if (isDraggingSeekBar) {
+                        handleProgressTouch(adjustedX, usableWidth);
+                    }
+                    return true;
+
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    if (isDraggingSeekBar) {
+                        handleProgressTouch(adjustedX, usableWidth);
+                        seekToPosition(adjustedX, usableWidth);
+                        isDraggingSeekBar = false;
+                    }
+                    return true;
             }
+            return false;
         });
 
-        binding.seekBar.addOnChangeListener(new Slider.OnChangeListener() {
-            @Override
-            public void onValueChange(Slider slider, float value, boolean fromUser) {
-                if (fromUser && musicService != null && musicService.getMediaPlayer() != null) {
-                    MediaPlayer mediaPlayer = musicService.getMediaPlayer();
-                    int seekPosition = (int) ((value / 100.0) * mediaPlayer.getDuration());
-                    binding.currentTime.setText(formatDuration(seekPosition));
-                }
-            }
-        });
+        binding.seekBar.setMax(100);
+        binding.seekBar.setProgress(0);
+    }
 
-        binding.seekBar.setValueFrom(0f);
-        binding.seekBar.setValueTo(100f);
-        binding.seekBar.setValue(0f);
+    private void handleProgressTouch(float adjustedX, int usableWidth) {
+        if (musicService != null && musicService.getMediaPlayer() != null) {
+            MediaPlayer mediaPlayer = musicService.getMediaPlayer();
+
+            // Calculate progress based on touch position within usable area
+            float progressPercent = Math.max(0, Math.min(1, adjustedX / usableWidth));
+
+            int newProgress = (int) (progressPercent * 100);
+            binding.seekBar.setProgress(newProgress);
+
+            // Update current time display
+            int seekPosition = (int) (progressPercent * mediaPlayer.getDuration());
+            binding.currentTime.setText(formatDuration(seekPosition));
+        }
+    }
+
+    private void seekToPosition(float adjustedX, int usableWidth) {
+        if (musicService != null && musicService.getMediaPlayer() != null) {
+            MediaPlayer mediaPlayer = musicService.getMediaPlayer();
+
+            // Calculate final seek position
+            float progressPercent = Math.max(0, Math.min(1, adjustedX / usableWidth));
+
+            int seekPosition = (int) (progressPercent * mediaPlayer.getDuration());
+            mediaPlayer.seekTo(seekPosition);
+        }
     }
 
     private void togglePlayPause() {
@@ -361,11 +465,12 @@ public class NowPlayingActivity extends AppCompatActivity {
                         int duration = mediaPlayer.getDuration();
 
                         if (duration > 0) {
-                            float progress = ((float) currentPosition / duration) * 100;
-                            binding.seekBar.setValue(progress);
+                            int progress = (int) (((float) currentPosition / duration) * 100);
+                            binding.seekBar.setProgress(progress);
                             binding.currentTime.setText(formatDuration(currentPosition));
                         }
                     } catch (IllegalStateException e) {
+                        // Handle media player state exceptions
                     }
                 }
 
