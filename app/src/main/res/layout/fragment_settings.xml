@@ -312,7 +312,7 @@
                 android:layout_marginTop="1dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
-                android:layout_marginBottom="4dp"
+                android:layout_marginBottom="80dp"
                 android:clickable="true"
                 android:focusable="true"
                 app:shapeAppearanceOverlay="@style/BottomCornerCardShape"

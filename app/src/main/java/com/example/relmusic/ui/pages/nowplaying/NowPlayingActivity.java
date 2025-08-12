@@ -187,7 +187,6 @@ public class NowPlayingActivity extends AppCompatActivity {
     }
 
     private void loadAlbumArt() {
-        // Load the main album art
         Glide.with(this)
                 .asBitmap()
                 .load(currentSong.getAlbumArtUri())
@@ -198,20 +197,18 @@ public class NowPlayingActivity extends AppCompatActivity {
                     public void onResourceReady(Bitmap bitmap, Transition<? super Bitmap> transition) {
                         binding.albumArt.setImageBitmap(bitmap);
 
-                        // Apply blur effect to the background
                         applyBlurredBackground(bitmap);
 
-                        Palette.from(bitmap).generate(palette -> {
-                            if (palette != null) {
-                                applyDynamicColors(palette);
-                            }
-                        });
+//                        Palette.from(bitmap).generate(palette -> {
+//                            if (palette != null) {
+//                                applyDynamicColors(palette);
+//                            }
+//                        });
                     }
 
                     @Override
                     public void onLoadCleared(Drawable placeholder) {
                         binding.albumArt.setImageDrawable(placeholder);
-                        // Set a default blurred background
                         binding.blurredBackground.setImageResource(R.drawable.ic_outline_music_note_24);
                     }
                 });
@@ -219,58 +216,43 @@ public class NowPlayingActivity extends AppCompatActivity {
 
     private void applyBlurredBackground(Bitmap originalBitmap) {
         try {
-            // Create a blurred version of the bitmap
             Bitmap blurredBitmap = blurBitmap(originalBitmap, 25f);
-
-            // Set the blurred bitmap as background
             binding.blurredBackground.setImageBitmap(blurredBitmap);
 
         } catch (Exception e) {
             Log.e("NowPlayingActivity", "Error applying blur effect: " + e.getMessage(), e);
-            // Fallback: use the original image with reduced alpha
             binding.blurredBackground.setImageBitmap(originalBitmap);
             binding.blurredBackground.setAlpha(0.3f);
         }
     }
 
     private Bitmap blurBitmap(Bitmap bitmap, float radius) {
-        // Create a copy of the bitmap
         Bitmap outputBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), bitmap.getConfig());
 
-        // Create RenderScript context
         RenderScript rs = RenderScript.create(this);
 
         try {
-            // Create blur script
             ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
 
-            // Create allocations for input and output
             Allocation inputAllocation = Allocation.createFromBitmap(rs, bitmap);
             Allocation outputAllocation = Allocation.createFromBitmap(rs, outputBitmap);
 
-            // Set blur radius (1.0 - 25.0)
             blurScript.setRadius(Math.min(25f, Math.max(1f, radius)));
 
-            // Set input allocation
             blurScript.setInput(inputAllocation);
 
-            // Execute the script
             blurScript.forEach(outputAllocation);
 
-            // Copy output to bitmap
             outputAllocation.copyTo(outputBitmap);
 
-            // Cleanup allocations
             inputAllocation.destroy();
             outputAllocation.destroy();
             blurScript.destroy();
 
         } catch (Exception e) {
             Log.e("NowPlayingActivity", "RenderScript blur failed: " + e.getMessage(), e);
-            // Fallback: return original bitmap
             return bitmap;
         } finally {
-            // Cleanup RenderScript
             rs.destroy();
         }
 
