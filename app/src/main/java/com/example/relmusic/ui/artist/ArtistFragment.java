@@ -64,7 +64,7 @@ public class ArtistFragment extends Fragment {
     private void setupRecyclerView() {
         RecyclerView recyclerView = binding.artistRecyclerView;
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 1);
         recyclerView.setLayoutManager(gridLayoutManager);
 
         artistAdapter = new ArtistAdapter(artistList, getContext());
@@ -271,7 +271,8 @@ public class ArtistFragment extends Fragment {
             String[] projection = {
                     MediaStore.Audio.Media.ARTIST,
                     MediaStore.Audio.Media.ALBUM_ID,
-                    MediaStore.Audio.Media._ID
+                    MediaStore.Audio.Media._ID,
+                    MediaStore.Audio.Media.DURATION
             };
 
             String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
@@ -282,10 +283,12 @@ public class ArtistFragment extends Fragment {
                     int artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST);
                     int albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID);
                     int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
+                    int durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION);
 
                     do {
                         String artistName = cursor.getString(artistColumn);
                         long albumId = cursor.getLong(albumIdColumn);
+                        long duration = cursor.getLong(durationColumn);
 
                         if (artistName != null && !artistName.trim().isEmpty() &&
                                 !artistName.equals("<unknown>")) {
@@ -296,13 +299,15 @@ public class ArtistFragment extends Fragment {
                                 ArtistItem artistItem = new ArtistItem(
                                         artistName,
                                         albumArtUri,
-                                        1
+                                        1,
+                                        duration
                                 );
                                 artistMap.put(artistName, artistItem);
                             } else {
                                 ArtistItem existingArtist = artistMap.get(artistName);
                                 if (existingArtist != null) {
                                     existingArtist.setSongCount(existingArtist.getSongCount() + 1);
+                                    existingArtist.addDuration(duration);
                                 }
                             }
                         }

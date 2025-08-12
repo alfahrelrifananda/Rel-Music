@@ -64,7 +64,7 @@
                         android:layout_height="48dp"
                         app:cardCornerRadius="24dp"
                         app:cardElevation="0dp"
-                        app:cardBackgroundColor="?attr/colorTertiaryContainer"
+                        app:cardBackgroundColor="?attr/colorPrimaryContainer"
                         app:strokeColor="@color/transparent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
@@ -111,102 +111,6 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginEnd="24dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="8dp"
-                android:text="Appearance"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textColor="?attr/colorPrimary" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/theme_card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="4dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardCornerRadius="32dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="?attr/colorSurface"
-                app:strokeColor="@color/transparent"
-                app:rippleColor="?attr/colorPrimary"
-                android:stateListAnimator="@animator/card_press_animation"
-                android:foreground="?attr/selectableItemBackground">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="20dp">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/theme_icon_card"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        app:cardCornerRadius="24dp"
-                        app:cardElevation="0dp"
-                        app:cardBackgroundColor="?attr/colorSecondaryContainer"
-                        app:strokeColor="@color/transparent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <ImageView
-                            android:id="@+id/theme_icon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_baseline_color_lens_24"
-                            app:tint="?attr/colorOnSurface" />
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <TextView
-                        android:id="@+id/theme_title"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="Theme"
-                        android:textAppearance="?attr/textAppearanceLabelLarge"
-                        android:textColor="?attr/colorOnSurface"
-                        app:layout_constraintEnd_toStartOf="@+id/theme_arrow"
-                        app:layout_constraintStart_toEndOf="@+id/theme_icon_card"
-                        app:layout_constraintTop_toTopOf="@+id/theme_icon_card" />
-
-                    <TextView
-                        android:id="@+id/theme_description"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="Choose light, dark, or system theme"
-                        android:textAppearance="?attr/textAppearanceBodySmall"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textFontWeight="300"
-                        app:layout_constraintEnd_toStartOf="@+id/theme_arrow"
-                        app:layout_constraintStart_toEndOf="@+id/theme_icon_card"
-                        app:layout_constraintTop_toBottomOf="@+id/theme_title" />
-
-                    <ImageView
-                        android:id="@+id/theme_arrow"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_outline_arrow_forward_24"
-                        app:tint="?attr/colorOnSurfaceVariant"
-                        app:layout_constraintBottom_toBottomOf="@+id/theme_icon_card"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@+id/theme_icon_card" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 android:layout_width="match_parent"
@@ -218,93 +122,6 @@
                 android:text="Support"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="?attr/colorPrimary" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/help_card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="1dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:shapeAppearanceOverlay="@style/TopCornersCardShape"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="?attr/colorSurface"
-                app:strokeColor="@color/transparent"
-                app:rippleColor="?attr/colorPrimary"
-                android:stateListAnimator="@animator/card_press_animation"
-                android:foreground="?attr/selectableItemBackground">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/help_icon_card"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        app:cardCornerRadius="24dp"
-                        app:cardElevation="0dp"
-                        app:cardBackgroundColor="?attr/colorPrimaryContainer"
-                        app:strokeColor="@color/transparent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <ImageView
-                            android:id="@+id/help_icon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_baseline_help_24"
-                            app:tint="?attr/colorOnSurface" />
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <TextView
-                        android:id="@+id/help_title"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="Help &amp; FAQ"
-                        android:textAppearance="?attr/textAppearanceLabelLarge"
-                        android:textColor="?attr/colorOnSurface"
-                        app:layout_constraintEnd_toStartOf="@+id/help_arrow"
-                        app:layout_constraintStart_toEndOf="@+id/help_icon_card"
-                        app:layout_constraintTop_toTopOf="@+id/help_icon_card" />
-
-                    <TextView
-                        android:id="@+id/help_description"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="Get help and find answers to common questions"
-                        android:textAppearance="?attr/textAppearanceBodySmall"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textFontWeight="300"
-                        app:layout_constraintEnd_toStartOf="@+id/help_arrow"
-                        app:layout_constraintStart_toEndOf="@+id/help_icon_card"
-                        app:layout_constraintTop_toBottomOf="@+id/help_title" />
-
-                    <ImageView
-                        android:id="@+id/help_arrow"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_outline_arrow_forward_24"
-                        app:tint="?attr/colorOnSurfaceVariant"
-                        app:layout_constraintBottom_toBottomOf="@+id/help_icon_card"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@+id/help_icon_card" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/feedback_card"
                 android:layout_width="match_parent"
@@ -318,15 +135,15 @@
                 app:cardElevation="0dp"
                 app:cardBackgroundColor="?attr/colorSurface"
                 app:strokeColor="@color/transparent"
+                app:cardCornerRadius="32dp"
                 app:rippleColor="?attr/colorPrimary"
-                app:shapeAppearanceOverlay="@style/BottomCornerCardShape"
                 android:stateListAnimator="@animator/card_press_animation"
                 android:foreground="?attr/selectableItemBackground">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="10dp">
+                    android:padding="20dp">
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/feedback_icon_card"
@@ -517,7 +334,7 @@
                         android:layout_height="48dp"
                         app:cardCornerRadius="24dp"
                         app:cardElevation="0dp"
-                        app:cardBackgroundColor="?attr/colorTertiaryContainer"
+                        app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
                         app:strokeColor="@color/transparent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">

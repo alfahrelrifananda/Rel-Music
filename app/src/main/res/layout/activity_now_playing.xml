@@ -37,7 +37,6 @@
                 android:layout_width="96dp"
                 app:rippleColor="@color/transparent"
                 android:layout_height="64dp"
-                app:iconTint="@color/white"
                 app:iconTintMode="multiply"
                 app:icon="@drawable/ic_baseline_arrow_back_24"
                 app:iconSize="48dp" />

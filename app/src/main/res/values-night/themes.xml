@@ -32,4 +32,13 @@
         <item name="cornerSizeBottomRight">32dp</item>
     </style>
 
+    <style name="RightCornersCardShape" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">4dp</item>
+        <item name="cornerSizeTopRight">48dp</item>
+        <item name="cornerSizeBottomLeft">4dp</item>
+        <item name="cornerSizeBottomRight">48dp</item>
+    </style>
+
+
 </resources>

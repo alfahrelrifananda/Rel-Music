@@ -17,6 +17,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
+import java.util.Locale;
 
 public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder> {
 
@@ -52,15 +53,8 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
 
         holder.artistNameTextView.setText(artistItem.getArtistName());
         holder.songCountTextView.setText(artistItem.getFormattedSongCount());
+        holder.durationTextView.setText(formatDuration(artistItem.getTotalDuration()));
 
-        Glide.with(context)
-                .load(artistItem.getArtistImageUri())
-                .apply(new RequestOptions()
-                        .placeholder(R.drawable.ic_outline_person_24)
-                        .error(R.drawable.ic_outline_person_24)
-                        .centerCrop()
-                        .circleCrop())
-                .into(holder.artistImageView);
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
@@ -80,19 +74,38 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
         return artistList.size();
     }
 
+    private String formatDuration(long durationMs) {
+        if (durationMs <= 0) return "0m";
+
+        long totalMinutes = durationMs / (1000 * 60);
+
+        if (totalMinutes < 60) {
+            return totalMinutes + "m";
+        } else {
+            long hours = totalMinutes / 60;
+            long minutes = totalMinutes % 60;
+
+            if (minutes == 0) {
+                return hours + "h";
+            } else {
+                return String.format(Locale.getDefault(), "%dh %dm", hours, minutes);
+            }
+        }
+    }
+
     public static class ArtistViewHolder extends RecyclerView.ViewHolder {
         MaterialCardView cardView;
-        ImageView artistImageView;
         TextView artistNameTextView;
         TextView songCountTextView;
+        TextView durationTextView;
         MaterialButton playButton;
 
         public ArtistViewHolder(@NonNull View itemView) {
             super(itemView);
             cardView = itemView.findViewById(R.id.artist_card);
-            artistImageView = itemView.findViewById(R.id.artist_image);
             artistNameTextView = itemView.findViewById(R.id.artist_name);
             songCountTextView = itemView.findViewById(R.id.song_count);
+            durationTextView = itemView.findViewById(R.id.duration);
             playButton = itemView.findViewById(R.id.play_button);
         }
     }

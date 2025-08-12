@@ -5,72 +5,115 @@
     android:id="@+id/artist_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginTop="2dp"
+    app:layout_goneMarginTop="2dp"
     android:clickable="true"
     android:focusable="true"
-    app:cardCornerRadius="32dp"
-    android:background="?attr/colorSurface"
-    android:stateListAnimator="@animator/card_press_animation"
+    app:shapeAppearanceOverlay="@style/RightCornersCardShape"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
     app:strokeColor="@color/transparent"
-    app:rippleColor="?attr/colorPrimary">
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:rippleColor="?attr/colorPrimary"
+    android:foreground="?attr/selectableItemBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
-
-        <ImageView
-            android:id="@+id/artist_image"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:contentDescription="Artist Image"
-            android:scaleType="centerCrop"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/ic_outline_person_24" />
+        android:padding="10dp">
 
         <TextView
             android:id="@+id/artist_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:ellipsize="end"
             android:maxLines="2"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/artist_info_container"
+            app:layout_constraintEnd_toStartOf="@id/action_container"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/artist_image"
-            tools:text="Artist Name" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="Taylor Swift" />
 
-        <TextView
-            android:id="@+id/song_count"
+        <LinearLayout
+            android:id="@+id/artist_info_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toStartOf="@id/play_button"
+            android:layout_marginEnd="8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/action_container"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/artist_name"
-            tools:text="25 songs" />
+            app:layout_constraintTop_toBottomOf="@id/artist_name">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/play_button"
-            style="@style/Widget.Material3.Button.IconButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:contentDescription="Play artist"
-            app:icon="@drawable/ic_baseline_play_arrow_24"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:iconSize="18dp"
-            app:iconTint="?attr/colorPrimary"
-            app:layout_constraintBottom_toBottomOf="@id/song_count"
+            <TextView
+                android:id="@+id/song_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical"
+                app:drawableStartCompat="@drawable/ic_outline_music_note_24"
+                app:drawableTint="?attr/colorOnSurfaceVariant"
+                tools:text="125 songs" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="•"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/duration"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                tools:text="8h 32m" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/action_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/song_count" />
+            app:layout_constraintTop_toTopOf="parent">
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/play_button"
+                style="@style/Widget.Material3.Button.IconButton.Filled"
+                android:layout_width="48dp"
+                android:layout_height="48dp" app:icon="@drawable/ic_baseline_play_arrow_24"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="24dp"
+                app:iconTint="?attr/colorOnPrimary"
+                app:backgroundTint="?attr/colorPrimary"
+                app:cornerRadius="24dp"
+                android:elevation="3dp"
+                app:elevation="3dp" />
+
+        </LinearLayout>
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

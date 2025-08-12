@@ -217,7 +217,8 @@
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/nav_view"
             android:layout_width="match_parent"
-            android:paddingBottom="16dp"
+            android:paddingBottom="20dp"
+            app:labelVisibilityMode="labeled"
             android:layout_height="wrap_content"
             android:background="?attr/colorSurface"
             app:menu="@menu/bottom_nav_menu" />
