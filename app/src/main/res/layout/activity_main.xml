@@ -53,6 +53,19 @@
                         android:visibility="invisible" />
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/search_button"
+                        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                        android:layout_width="45dp"
+                        android:layout_height="38dp"
+                        app:icon="@drawable/ic_baseline_search_24"
+                        app:iconSize="24dp"
+                        app:iconGravity="textStart"
+                        app:iconTint="?attr/colorOnSurfaceVariant"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        app:cornerRadius="24dp" />
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/refresh_button"
                         style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                         android:layout_width="45dp"
