@@ -276,11 +276,9 @@ public class NowPlayingActivity extends AppCompatActivity {
         int whiteColor = Color.WHITE;
         int blackColor = Color.BLACK;
 
-        // Update progress indicator colors
         binding.seekBar.setIndicatorColor(accentColor);
         binding.seekBar.setTrackColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorOutlineVariant, 0));
 
-        // Update button colors with better contrast
         binding.playPauseButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(accentColor));
         binding.playPauseButton.setIconTint(android.content.res.ColorStateList.valueOf(whiteColor));
 
@@ -349,13 +347,11 @@ public class NowPlayingActivity extends AppCompatActivity {
         if (musicService != null && musicService.getMediaPlayer() != null) {
             MediaPlayer mediaPlayer = musicService.getMediaPlayer();
 
-            // Calculate progress based on touch position within usable area
             float progressPercent = Math.max(0, Math.min(1, adjustedX / usableWidth));
 
             int newProgress = (int) (progressPercent * 100);
             binding.seekBar.setProgress(newProgress);
 
-            // Update current time display
             int seekPosition = (int) (progressPercent * mediaPlayer.getDuration());
             binding.currentTime.setText(formatDuration(seekPosition));
         }

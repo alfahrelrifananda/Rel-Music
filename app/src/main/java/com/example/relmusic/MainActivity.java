@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.relmusic.ui.pages.search.SearchActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -119,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
             setupNavigation();
             setupToolbarActions();
-
+            searchMusic();
             registerMusicUpdateReceiver();
 
         } catch (Exception e) {
@@ -191,6 +192,15 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "Error setting up toolbar actions: " + e.getMessage(), e);
         }
+    }
+
+    private void searchMusic() {
+        MaterialButton searchButton = findViewById(R.id.search_button);
+        searchButton.setOnClickListener( v -> {
+            Intent searchIntent = new Intent(this, SearchActivity.class);
+            startActivity(searchIntent);
+           }
+        );
     }
 
     private void refreshMusicFragmentData() {
