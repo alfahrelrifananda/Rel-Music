@@ -47,7 +47,8 @@
                         android:layout_weight="1"
                         android:layout_marginStart="16dp"
                         android:text="RelMusic"
-                        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                        android:fontFamily="@font/roboto_flex_font"
+                        android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface"
                         android:alpha="0.0"
                         android:visibility="invisible" />
