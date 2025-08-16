@@ -159,8 +159,9 @@ public class NowPlayingActivity extends AppCompatActivity {
         if (currentSong == null) return;
 
         binding.songTitle.setText(currentSong.getTitle());
-        binding.artistName.setText(currentSong.getArtist());
-        binding.albumName.setText(currentSong.getAlbum());
+        // Remove artistName and albumName references since they're not in the new layout
+        // binding.artistName.setText(currentSong.getArtist());
+        // binding.albumName.setText(currentSong.getAlbum());
 
         binding.totalDuration.setText(formatDuration(currentSong.getDuration()));
 
@@ -279,20 +280,22 @@ public class NowPlayingActivity extends AppCompatActivity {
         binding.seekBar.setIndicatorColor(accentColor);
         binding.seekBar.setTrackColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorOutlineVariant, 0));
 
+        // Apply colors to buttons
         binding.playPauseButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(accentColor));
-        binding.playPauseButton.setIconTint(android.content.res.ColorStateList.valueOf(whiteColor));
+        binding.playPauseButton.setTextColor(whiteColor);
 
         binding.previousButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(accentColor));
-        binding.previousButton.setIconTint(android.content.res.ColorStateList.valueOf(whiteColor));
+        // For regular Button with compound drawable, use setCompoundDrawableTintList
+        binding.previousButton.setCompoundDrawableTintList(android.content.res.ColorStateList.valueOf(whiteColor));
 
         binding.nextButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(accentColor));
-        binding.nextButton.setIconTint(android.content.res.ColorStateList.valueOf(whiteColor));
+        binding.nextButton.setCompoundDrawableTintList(android.content.res.ColorStateList.valueOf(whiteColor));
 
         binding.shuffleButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(accentColor));
-        binding.shuffleButton.setIconTint(android.content.res.ColorStateList.valueOf(whiteColor));
+        binding.shuffleButton.setCompoundDrawableTintList(android.content.res.ColorStateList.valueOf(whiteColor));
 
         binding.repeatButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(accentColor));
-        binding.repeatButton.setIconTint(android.content.res.ColorStateList.valueOf(whiteColor));
+        binding.repeatButton.setCompoundDrawableTintList(android.content.res.ColorStateList.valueOf(whiteColor));
     }
 
     private void setupClickListeners() {
@@ -357,18 +360,6 @@ public class NowPlayingActivity extends AppCompatActivity {
         }
     }
 
-//    private void seekToPosition(float adjustedX, int usableWidth) {
-//        if (musicService != null && musicService.getMediaPlayer() != null) {
-//            MediaPlayer mediaPlayer = musicService.getMediaPlayer();
-//
-//            // Calculate final seek position
-//            float progressPercent = Math.max(0, Math.min(1, adjustedX / usableWidth));
-//
-//            int seekPosition = (int) (progressPercent * mediaPlayer.getDuration());
-//            mediaPlayer.seekTo(seekPosition);
-//        }
-//    }
-
     private void seekToPosition(float adjustedX, int usableWidth) {
         if (musicService != null && musicService.getMediaPlayer() != null) {
             MediaPlayer mediaPlayer = musicService.getMediaPlayer();
@@ -414,9 +405,8 @@ public class NowPlayingActivity extends AppCompatActivity {
     }
 
     private void updatePlayPauseButton() {
-        int iconRes = isPlaying ? R.drawable.ic_baseline_pause_24 : R.drawable.ic_baseline_play_arrow_24;
-        Drawable icon = ContextCompat.getDrawable(this, iconRes);
-        binding.playPauseButton.setIcon(icon);
+        String buttonText = isPlaying ? "PAUSE" : "PLAY";
+        binding.playPauseButton.setText(buttonText);
     }
 
     private void updateShuffleButton() {
@@ -431,17 +421,20 @@ public class NowPlayingActivity extends AppCompatActivity {
         switch (repeatMode) {
             case MusicService.REPEAT_OFF:
                 binding.repeatButton.setAlpha(0.6f);
-                binding.repeatButton.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_baseline_repeat_24));
+                binding.repeatButton.setText("REPEAT");
                 break;
             case MusicService.REPEAT_ALL:
                 binding.repeatButton.setAlpha(1.0f);
-                binding.repeatButton.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_baseline_repeat_24));
+                binding.repeatButton.setText("REPEAT");
                 break;
             case MusicService.REPEAT_ONE:
                 binding.repeatButton.setAlpha(1.0f);
-                binding.repeatButton.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_baseline_repeat_one_24));
+                binding.repeatButton.setText("REPEAT ONE");
                 break;
         }
+
+        binding.repeatButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+        binding.repeatButton.setCompoundDrawablePadding(0);
     }
 
     private void startSeekBarUpdates() {
