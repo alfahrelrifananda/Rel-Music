@@ -357,15 +357,29 @@ public class NowPlayingActivity extends AppCompatActivity {
         }
     }
 
+//    private void seekToPosition(float adjustedX, int usableWidth) {
+//        if (musicService != null && musicService.getMediaPlayer() != null) {
+//            MediaPlayer mediaPlayer = musicService.getMediaPlayer();
+//
+//            // Calculate final seek position
+//            float progressPercent = Math.max(0, Math.min(1, adjustedX / usableWidth));
+//
+//            int seekPosition = (int) (progressPercent * mediaPlayer.getDuration());
+//            mediaPlayer.seekTo(seekPosition);
+//        }
+//    }
+
     private void seekToPosition(float adjustedX, int usableWidth) {
         if (musicService != null && musicService.getMediaPlayer() != null) {
             MediaPlayer mediaPlayer = musicService.getMediaPlayer();
 
-            // Calculate final seek position
             float progressPercent = Math.max(0, Math.min(1, adjustedX / usableWidth));
-
             int seekPosition = (int) (progressPercent * mediaPlayer.getDuration());
-            mediaPlayer.seekTo(seekPosition);
+
+            Intent serviceIntent = new Intent(this, MusicService.class);
+            serviceIntent.setAction(MusicService.ACTION_SEEK);
+            serviceIntent.putExtra("seek_position", seekPosition);
+            startService(serviceIntent);
         }
     }
 

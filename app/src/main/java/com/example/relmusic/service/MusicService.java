@@ -53,6 +53,7 @@ public class MusicService extends Service implements
     public static final String ACTION_NEXT = "ACTION_NEXT";
     public static final String ACTION_PREVIOUS = "ACTION_PREVIOUS";
     public static final String ACTION_STOP = "ACTION_STOP";
+    public static final String ACTION_SEEK = "ACTION_SEEK"; // Added seek action
     public static final String ACTION_REQUEST_STATE = "ACTION_REQUEST_STATE";
     public static final String ACTION_TOGGLE_SHUFFLE = "ACTION_TOGGLE_SHUFFLE";
     public static final String ACTION_TOGGLE_REPEAT = "ACTION_TOGGLE_REPEAT";
@@ -234,6 +235,10 @@ public class MusicService extends Service implements
                         break;
                     case ACTION_STOP:
                         stopMusic();
+                        break;
+                    case ACTION_SEEK: // Handle seek action
+                        int seekPosition = intent.getIntExtra("seek_position", 0);
+                        seekTo(seekPosition);
                         break;
                     case ACTION_REQUEST_STATE:
                         broadcastCurrentState();
@@ -467,6 +472,8 @@ public class MusicService extends Service implements
 
                     if (currentPosition > 3000) {
                         mediaPlayer.seekTo(0);
+                        updatePlaybackState(); // Update playback state after seeking
+                        showNotification(); // Update notification after seeking
                         return;
                     }
                 } catch (IllegalStateException e) {
@@ -480,6 +487,8 @@ public class MusicService extends Service implements
                 if (mediaPlayer != null) {
                     try {
                         mediaPlayer.seekTo(0);
+                        updatePlaybackState(); // Update playback state after seeking
+                        showNotification(); // Update notification after seeking
                     } catch (Exception e) {
                         Log.e(TAG, "Error seeking to start: " + e.getMessage(), e);
                     }
@@ -494,7 +503,9 @@ public class MusicService extends Service implements
         if (mediaPlayer != null && isPrepared) {
             try {
                 mediaPlayer.seekTo(position);
-                updatePlaybackState();
+                updatePlaybackState(); // This will update the MediaSession with new position
+                showNotification(); // This will update the notification
+                Log.d(TAG, "Seeked to position: " + position);
             } catch (Exception e) {
                 Log.e(TAG, "Error seeking: " + e.getMessage(), e);
             }
