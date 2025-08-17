@@ -30,6 +30,7 @@
                 app:layout_collapseMode="pin"
                 app:navigationIcon="@null"
                 app:title=""
+                android:textFontWeight="450"
                 app:titleTextColor="?attr/colorOnSurface">
 
                 <LinearLayout
@@ -47,8 +48,7 @@
                         android:layout_weight="1"
                         android:layout_marginStart="16dp"
                         android:text="RelMusic"
-                        android:fontFamily="@font/roboto_flex_font"
-                        android:textStyle="bold"
+                        android:textFontWeight="450"
                         android:textColor="?attr/colorOnSurface"
                         android:alpha="0.0"
                         android:visibility="invisible" />
