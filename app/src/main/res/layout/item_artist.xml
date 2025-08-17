@@ -8,20 +8,20 @@
     android:layout_marginHorizontal="8dp"
     android:layout_marginTop="2dp"
     app:layout_goneMarginTop="2dp"
+    android:layout_marginVertical="3dp"
     android:clickable="true"
     android:focusable="true"
-    app:shapeAppearanceOverlay="@style/RightCornersCardShape"
     app:cardElevation="0dp"
     app:strokeWidth="1dp"
     app:strokeColor="@color/transparent"
-    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardBackgroundColor="@color/transparent"
     app:rippleColor="?attr/colorPrimary"
     android:foreground="?attr/selectableItemBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp">
+        android:paddingVertical="10dp">
 
         <TextView
             android:id="@+id/artist_name"
@@ -37,7 +37,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
-            tools:text="Taylor Swift" />
+            tools:text="Efek Rumah Kaca" />
 
         <LinearLayout
             android:id="@+id/artist_info_container"
