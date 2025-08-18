@@ -155,19 +155,6 @@ public class NowPlayingActivity extends AppCompatActivity {
         }
     }
 
-    private void setupNowPlaying() {
-        if (currentSong == null) return;
-
-        binding.songTitle.setText(currentSong.getTitle());
-        // Remove artistName and albumName references since they're not in the new layout
-        // binding.artistName.setText(currentSong.getArtist());
-        // binding.albumName.setText(currentSong.getAlbum());
-
-        binding.totalDuration.setText(formatDuration(currentSong.getDuration()));
-
-        loadAlbumArt();
-    }
-
     private void updateUIFromService() {
         if (musicService != null) {
             MusicItem serviceSong = musicService.getCurrentSong();
@@ -178,6 +165,7 @@ public class NowPlayingActivity extends AppCompatActivity {
                 }
                 isPlaying = musicService.isPlaying();
                 updatePlayPauseButton();
+                updateProgressFromService();
             }
 
             isShuffleEnabled = musicService.isShuffleEnabled();
@@ -185,6 +173,74 @@ public class NowPlayingActivity extends AppCompatActivity {
             updateShuffleButton();
             updateRepeatButton();
         }
+    }
+    private void updateProgressFromService() {
+        if (musicService != null && musicService.getMediaPlayer() != null) {
+            try {
+                MediaPlayer mediaPlayer = musicService.getMediaPlayer();
+                int currentPosition = mediaPlayer.getCurrentPosition();
+                int duration = mediaPlayer.getDuration();
+
+                if (duration > 0) {
+                    int progress = (int) (((float) currentPosition / duration) * 100);
+                    binding.seekBar.setProgress(progress);
+                    binding.currentTime.setText(formatDuration(currentPosition));
+                }
+            } catch (IllegalStateException e) {
+                Log.e("NowPlayingActivity", "Error getting playback position: " + e.getMessage());
+            }
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void setupProgressIndicator() {
+        binding.seekBar.setIndeterminate(false);
+        binding.seekBar.setMax(100);
+
+        binding.seekBar.setOnTouchListener((v, event) -> {
+            int leftPadding = v.getPaddingLeft();
+            int rightPadding = v.getPaddingRight();
+            int usableWidth = v.getWidth() - leftPadding - rightPadding;
+            float adjustedX = event.getX() - leftPadding;
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    isDraggingSeekBar = true;
+                    handleProgressTouch(adjustedX, usableWidth);
+                    return true;
+
+                case MotionEvent.ACTION_MOVE:
+                    if (isDraggingSeekBar) {
+                        handleProgressTouch(adjustedX, usableWidth);
+                    }
+                    return true;
+
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    if (isDraggingSeekBar) {
+                        handleProgressTouch(adjustedX, usableWidth);
+                        seekToPosition(adjustedX, usableWidth);
+                        isDraggingSeekBar = false;
+                    }
+                    return true;
+            }
+            return false;
+        });
+    }
+
+    private void setupNowPlaying() {
+        if (currentSong == null) return;
+
+        binding.songTitle.setText(currentSong.getTitle());
+        binding.songTitle.setSelected(true);
+        binding.totalDuration.setText(formatDuration(currentSong.getDuration()));
+
+        if (musicService == null) {
+            binding.currentTime.setText("0:00");
+            binding.seekBar.setProgress(0);
+        }
+
+        loadAlbumArt();
     }
 
     private void loadAlbumArt() {
@@ -214,6 +270,8 @@ public class NowPlayingActivity extends AppCompatActivity {
                     }
                 });
     }
+
+
 
     private void applyBlurredBackground(Bitmap originalBitmap) {
         try {
@@ -306,44 +364,6 @@ public class NowPlayingActivity extends AppCompatActivity {
 
         binding.shuffleButton.setOnClickListener(v -> toggleShuffle());
         binding.repeatButton.setOnClickListener(v -> toggleRepeat());
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private void setupProgressIndicator() {
-        binding.seekBar.setIndeterminate(false);
-
-        binding.seekBar.setOnTouchListener((v, event) -> {
-            int leftPadding = v.getPaddingLeft();
-            int rightPadding = v.getPaddingRight();
-            int usableWidth = v.getWidth() - leftPadding - rightPadding;
-            float adjustedX = event.getX() - leftPadding;
-
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    isDraggingSeekBar = true;
-                    handleProgressTouch(adjustedX, usableWidth);
-                    return true;
-
-                case MotionEvent.ACTION_MOVE:
-                    if (isDraggingSeekBar) {
-                        handleProgressTouch(adjustedX, usableWidth);
-                    }
-                    return true;
-
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    if (isDraggingSeekBar) {
-                        handleProgressTouch(adjustedX, usableWidth);
-                        seekToPosition(adjustedX, usableWidth);
-                        isDraggingSeekBar = false;
-                    }
-                    return true;
-            }
-            return false;
-        });
-
-        binding.seekBar.setMax(100);
-        binding.seekBar.setProgress(0);
     }
 
     private void handleProgressTouch(float adjustedX, int usableWidth) {

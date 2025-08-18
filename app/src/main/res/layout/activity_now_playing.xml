@@ -13,7 +13,7 @@
         android:src="@drawable/ic_outline_music_note_24" />
 
     <View
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0.75"
         android:background="@color/black" />
@@ -43,22 +43,25 @@
 
         </LinearLayout>
 
+        <!-- Album art container - made flexible -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="350dp"
-            android:layout_marginTop="64dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="16dp"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="64dp"
+            android:layout_marginBottom="16dp"
             android:gravity="center">
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="350dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="8dp"
-                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/transparent"
-                app:strokeWidth="0dp">
+                android:layout_weight="1"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                android:gravity="center"
+                tools:ignore="Suspicious0dp">
 
                 <ImageView
                     android:id="@+id/albumArt"
@@ -69,7 +72,8 @@
                     android:src="@drawable/ic_outline_music_note_24"
                     tools:src="@tools:sample/backgrounds/scenic" />
 
-            </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -93,41 +97,47 @@
                 android:textColor="@color/white"
                 android:gravity="center"
                 android:maxLines="1"
-                android:ellipsize="end"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:freezesText="true"
+                android:singleLine="true"
+                android:scrollHorizontally="true"
                 tools:text="Sample Song Title" />
 
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButtonGroup
-                android:layout_width="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:paddingHorizontal="32dp"
+            android:gravity="center_horizontal"
+            android:spacing="4dp">
+            <Button
+                android:id="@+id/playPauseButton"
+                style="?attr/materialIconButtonFilledStyle"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
-                android:paddingHorizontal="32dp"
-                android:gravity="center_horizontal"
-                android:spacing="4dp">
-                <Button
-                    android:id="@+id/playPauseButton"
-                    style="?attr/materialIconButtonFilledStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:contentDescription="Play"
-                    android:gravity="center"
-                    android:text="PLAY"
-                    android:textSize="24dp"
-                    app:iconGravity="textStart" />
-                <Button
-                    android:id="@+id/previousButton"
-                    style="?attr/materialIconButtonFilledStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:contentDescription="Previous"
-                    android:gravity="center"
-                    android:textSize="24dp"
-                    app:iconGravity="textStart"
-                    app:icon="@drawable/ic_baseline_skip_previous_24"/>
-            </com.google.android.material.button.MaterialButtonGroup>
+                android:layout_weight="0.8"
+                android:contentDescription="Play"
+                android:gravity="center"
+                android:text="PLAY"
+                android:textSize="24dp"
+                app:iconGravity="textStart" />
+            <Button
+                android:id="@+id/previousButton"
+                style="?attr/materialIconButtonFilledStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.2"
+                android:contentDescription="Previous"
+                android:gravity="center"
+                android:textSize="24dp"
+                app:iconGravity="textStart"
+                app:icon="@drawable/ic_baseline_skip_previous_24"/>
+        </com.google.android.material.button.MaterialButtonGroup>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -210,7 +220,7 @@
         <com.google.android.material.button.MaterialButtonGroup
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
+            android:paddingBottom="48dp"
             android:paddingHorizontal="32dp"
             android:gravity="center_horizontal"
             android:spacing="4dp">
@@ -229,7 +239,7 @@
                 app:icon="@drawable/ic_outline_shuffle_24"/>
             <Button
                 android:id="@+id/repeatButton"
-                style="?attr/materialIconButtonFilledTonalStyle"
+                style="?attr/materialIconButtonOutlinedStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.8"
@@ -240,7 +250,6 @@
                 app:iconGravity="textStart"
                 android:textSize="24dp"/>
         </com.google.android.material.button.MaterialButtonGroup>
-
 
     </LinearLayout>
 
