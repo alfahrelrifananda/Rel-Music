@@ -22,7 +22,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.LinearInterpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -297,19 +299,36 @@ public class SearchFragment extends Fragment {
         binding.clearButton.setOnClickListener(v -> {
             binding.searchEditText.setText("");
             binding.searchEditText.requestFocus();
+            showKeyboard();
         });
 
         binding.searchEditText.requestFocus();
 
-        binding.searchEditText.post(() -> {
-            android.view.inputmethod.InputMethodManager imm =
-                    (android.view.inputmethod.InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.showSoftInput(binding.searchEditText, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
+        binding.searchEditText.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                binding.searchEditText.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                // Now show the keyboard
+                showKeyboard();
             }
         });
     }
 
+    private void showKeyboard() {
+        if (getActivity() != null && !isFragmentDestroyed && binding != null) {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                if (binding != null && binding.searchEditText != null) {
+                    binding.searchEditText.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.showSoftInput(binding.searchEditText, InputMethodManager.SHOW_FORCED);
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                    }
+                }
+            }, 100); // 100ms delay
+        }
+    }
     private void performSearch(String query) {
         if (query.isEmpty()) {
             showInitialState();
