@@ -18,6 +18,7 @@
 
     <style name="BottomNavigationView">
         <item name="colorSecondaryContainer">?attr/colorPrimary</item>
+        <item name="colorOnSecondaryContainer">?attr/colorOnPrimary</item>
     </style>
 
     <style name="TopCornersCardShape" parent="">
