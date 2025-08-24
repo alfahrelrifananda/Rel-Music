@@ -235,7 +235,7 @@
             android:id="@+id/nav_view"
             android:layout_width="match_parent"
             android:paddingBottom="20dp"
-            app:itemIconTint="?attr/colorPrimary"
+            app:itemIconTint="?attr/colorOnPrimary"
             app:itemTextColor="?attr/colorPrimary"
             app:labelVisibilityMode="labeled"
             android:theme="@style/BottomNavigationView"
