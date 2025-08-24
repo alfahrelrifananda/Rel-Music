@@ -18,10 +18,10 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/collapsingToolbarLayoutLargeSize"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:contentScrim="?attr/colorSurface"
-            app:statusBarScrim="?attr/colorSurface">
+            app:contentScrim="?attr/colorSurfaceContainerHigh"
+            app:statusBarScrim="@color/transparent">
 
-            <ImageView
+        <ImageView
                 android:id="@+id/artistBackgroundImageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
