@@ -16,6 +16,10 @@
         </item>
     </style>
 
+    <style name="BottomNavigationView">
+        <item name="colorSecondaryContainer">?attr/colorPrimary</item>
+    </style>
+
     <style name="TopCornersCardShape" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSizeTopLeft">32dp</item>
