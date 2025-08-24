@@ -91,7 +91,6 @@
                 android:layout_height="wrap_content"
                 android:text="Song Title"
                 android:textStyle="italic"
-                android:textFontWeight="600"
                 android:paddingHorizontal="32dp"
                 android:textAppearance="?attr/textAppearanceHeadlineLarge"
                 android:textColor="@color/white"
