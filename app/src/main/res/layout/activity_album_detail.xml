@@ -18,8 +18,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/collapsingToolbarLayoutLargeSize"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:contentScrim="?attr/colorSurface"
-            app:statusBarScrim="?attr/colorSurface">
+            app:contentScrim="?attr/colorSurfaceContainerHigh"
+            app:statusBarScrim="@color/transparent">
 
             <ImageView
                 android:id="@+id/albumBackgroundImageView"
@@ -39,6 +39,7 @@
                 android:layout_height="?attr/actionBarSize"
                 android:background="@android:color/transparent"
                 app:layout_collapseMode="pin"
+
                 app:navigationIcon="@drawable/ic_baseline_arrow_back_24" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
