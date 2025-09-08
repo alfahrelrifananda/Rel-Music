@@ -79,7 +79,6 @@
                         android:maxLines="1"
                         android:textAppearance="?attr/textAppearanceTitleMedium"
                         android:textColor="?attr/colorOnSurface"
-                        android:textStyle="bold"
                         tools:text="Album Name" />
 
                     <TextView
