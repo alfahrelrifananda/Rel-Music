@@ -110,13 +110,11 @@
         <com.google.android.material.button.MaterialButtonGroup
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
             android:paddingHorizontal="32dp"
             android:gravity="center_horizontal"
             android:spacing="4dp">
             <Button
                 android:id="@+id/playPauseButton"
-                style="?attr/materialIconButtonFilledStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.8"
@@ -127,10 +125,9 @@
                 app:iconGravity="textStart" />
             <Button
                 android:id="@+id/previousButton"
-                style="?attr/materialIconButtonFilledStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.2"
+                android:layout_weight="0.4"
                 android:contentDescription="Previous"
                 android:gravity="center"
                 android:textSize="24dp"
@@ -146,10 +143,9 @@
 
             <Button
                 android:id="@+id/nextButton"
-                style="?attr/materialIconButtonFilledStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.2"
+                android:layout_weight="0.3"
                 android:contentDescription="Next"
                 android:gravity="center"
                 android:textSize="24dp"
@@ -158,11 +154,11 @@
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="0.8"
-                android:layout_marginBottom="16dp"
+                android:layout_weight="0.7"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="32dp">
+                android:paddingLeft="8dp"
+                android:paddingRight="32dp">
 
                 <FrameLayout
                     android:layout_width="match_parent"
@@ -225,10 +221,10 @@
             android:spacing="4dp">
             <Button
                 android:id="@+id/shuffleButton"
-                style="?attr/materialIconButtonOutlinedStyle"
+                android:backgroundTint="?attr/colorSecondary"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.2"
+                android:layout_weight="0.5"
                 android:contentDescription="Shuffle"
                 android:gravity="center"
                 android:drawablePadding="0dp"
@@ -238,8 +234,8 @@
                 app:icon="@drawable/ic_outline_shuffle_24"/>
             <Button
                 android:id="@+id/repeatButton"
-                style="?attr/materialIconButtonOutlinedStyle"
                 android:layout_width="0dp"
+                android:backgroundTint="?attr/colorSecondary"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.8"
                 android:contentDescription="Repeat"

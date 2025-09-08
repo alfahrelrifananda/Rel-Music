@@ -69,7 +69,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/play_button"
             style="@style/Widget.Material3.Button.IconButton"
-            android:layout_width="48dp"
+            android:layout_width="64dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
             app:icon="@drawable/ic_baseline_play_arrow_24"

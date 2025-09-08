@@ -231,7 +231,9 @@ public class NowPlayingActivity extends AppCompatActivity {
     private void setupNowPlaying() {
         if (currentSong == null) return;
 
-        binding.songTitle.setText(currentSong.getTitle());
+        String name = currentSong.getTitle();
+        String band = currentSong.getArtist();
+        binding.songTitle.setText(name + " - " + band);
         binding.songTitle.setSelected(true);
         binding.totalDuration.setText(formatDuration(currentSong.getDuration()));
 
