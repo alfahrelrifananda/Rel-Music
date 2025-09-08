@@ -489,7 +489,6 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
 
-            setupAlbumArtRotationAnimator();
 
             miniPlayerContainer.setOnClickListener(v -> {
                 if (!isActivityDestroyed) {
@@ -538,22 +537,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "Error initializing mini player: " + e.getMessage(), e);
             return false;
-        }
-    }
-
-    private void setupAlbumArtRotationAnimator() {
-        try {
-            if (miniAlbumArt != null) {
-                albumArtRotationAnimator = ObjectAnimator.ofFloat(miniAlbumArt, "rotation", 0f, 360f);
-                albumArtRotationAnimator.setDuration(5000);
-                albumArtRotationAnimator.setInterpolator(new LinearInterpolator());
-                albumArtRotationAnimator.setRepeatCount(ObjectAnimator.INFINITE);
-                albumArtRotationAnimator.setRepeatMode(ObjectAnimator.RESTART);
-            } else {
-                Log.e(TAG, "miniAlbumArt is null when setting up rotation animator");
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error setting up album art rotation animator: " + e.getMessage(), e);
         }
     }
 
@@ -622,9 +605,7 @@ public class MainActivity extends AppCompatActivity {
                         .error(R.drawable.ic_outline_music_note_24)
                         .into(miniAlbumArt);
 
-                if (albumArtRotationAnimator == null) {
-                    setupAlbumArtRotationAnimator();
-                }
+
             } catch (Exception e) {
                 Log.e(TAG, "Error loading album art: " + e.getMessage(), e);
             }

@@ -64,6 +64,7 @@
                 tools:ignore="Suspicious0dp">
 
                 <ImageView
+                    app:cardCornerRadius="4dp"
                     android:id="@+id/albumArt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
