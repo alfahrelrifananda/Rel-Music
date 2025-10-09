@@ -25,11 +25,13 @@
         android:orientation="vertical"
         android:fitsSystemWindows="true">
 
+        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:paddingVertical="8dp">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/backButton"
@@ -41,49 +43,37 @@
                 app:icon="@drawable/ic_baseline_arrow_back_24"
                 app:iconSize="48dp" />
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
         </LinearLayout>
 
-        <!-- Album art container - made flexible -->
-        <LinearLayout
+        <!-- Album art container - optimized for visibility -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:layout_marginTop="16dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="0dp"
-            android:gravity="center">
+            android:layout_margin="32dp">
 
-            <LinearLayout
+            <ImageView
+                android:id="@+id/albumArt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="16dp"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="16dp"
-                android:gravity="center"
-                tools:ignore="Suspicious0dp">
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_outline_music_note_24"
+                tools:src="@tools:sample/backgrounds/scenic" />
 
-                <ImageView
-                    app:cardCornerRadius="4dp"
-                    android:id="@+id/albumArt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:scaleType="centerCrop"
-                    android:adjustViewBounds="true"
-                    android:src="@drawable/ic_outline_music_note_24"
-                    tools:src="@tools:sample/backgrounds/scenic" />
+        </FrameLayout>
 
-
-            </LinearLayout>
-
-        </LinearLayout>
-
+        <!-- Song info section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="16dp"
-            android:padding="0dp"
+            android:paddingHorizontal="32dp"
+            android:paddingVertical="8dp"
             android:gravity="center">
 
             <TextView
@@ -91,8 +81,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Song Title"
-                android:textStyle="italic"
-                android:paddingHorizontal="32dp"
                 android:textAppearance="?attr/textAppearanceHeadlineLarge"
                 android:textColor="@color/white"
                 android:gravity="center"
@@ -108,143 +96,140 @@
 
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButtonGroup
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="32dp"
-            android:gravity="center_horizontal"
-            android:spacing="4dp">
-            <Button
-                android:id="@+id/playPauseButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.8"
-                android:contentDescription="Play"
-                android:gravity="center"
-                android:text="PLAY"
-                android:textSize="24dp"
-                app:iconGravity="textStart" />
-            <Button
-                android:id="@+id/previousButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.4"
-                android:contentDescription="Previous"
-                android:gravity="center"
-                android:textSize="24dp"
-                app:iconGravity="textStart"
-                app:icon="@drawable/ic_baseline_skip_previous_24"/>
-        </com.google.android.material.button.MaterialButtonGroup>
-
+        <!-- Progress bar section -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:paddingHorizontal="32dp"
-            android:layout_height="wrap_content">
+            android:paddingVertical="8dp">
 
-            <Button
-                android:id="@+id/nextButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.3"
-                android:contentDescription="Next"
-                android:gravity="center"
-                android:textSize="24dp"
-                app:iconGravity="textStart"
-                app:icon="@drawable/ic_baseline_skip_next_24"/>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:gravity="center">
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="0.7"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingLeft="8dp"
-                android:paddingRight="32dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp">
-
-                    <com.google.android.material.progressindicator.LinearProgressIndicator
-                        android:id="@+id/seekBar"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        app:waveAmplitude="3dp"
-                        app:wavelengthDeterminate="24dp"
-                        android:indeterminate="false" />
-
-                </FrameLayout>
-
-                <LinearLayout
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/seekBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:layout_gravity="center"
+                    app:waveAmplitude="3dp"
+                    app:wavelengthDeterminate="24dp"
+                    android:indeterminate="false" />
 
-                    <TextView
-                        android:id="@+id/currentTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0:00"
-                        android:textAppearance="?attr/textAppearanceBodySmall"
-                        android:textColor="@color/white"
-                        android:minWidth="40dp"
-                        android:gravity="center" />
+            </FrameLayout>
 
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingVertical="4dp">
 
-                    <TextView
-                        android:id="@+id/totalDuration"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0:00"
-                        android:textAppearance="?attr/textAppearanceBodySmall"
-                        android:textColor="@color/white"
-                        android:minWidth="40dp"
-                        android:gravity="center" />
+                <TextView
+                    android:id="@+id/currentTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0:00"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="@color/white"
+                    android:minWidth="40dp"
+                    android:gravity="center" />
 
-                </LinearLayout>
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/totalDuration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0:00"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="@color/white"
+                    android:minWidth="40dp"
+                    android:gravity="center" />
 
             </LinearLayout>
 
         </LinearLayout>
 
+        <!-- Main playback controls -->
         <com.google.android.material.button.MaterialButtonGroup
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="48dp"
             android:paddingHorizontal="32dp"
+            android:paddingVertical="16dp"
             android:gravity="center_horizontal"
-            android:spacing="4dp">
+            android:spacing="8dp">
+
+            <Button
+                android:id="@+id/previousButton"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="0.3"
+                android:contentDescription="Previous"
+                android:gravity="center"
+                app:icon="@drawable/ic_baseline_skip_previous_24"
+                app:iconGravity="textStart" />
+
+            <Button
+                android:id="@+id/playPauseButton"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="0.4"
+                android:contentDescription="Play"
+                android:gravity="center"
+                android:text="PLAY"
+                android:textSize="16sp"
+                app:iconGravity="textStart" />
+
+            <Button
+                android:id="@+id/nextButton"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="0.3"
+                android:contentDescription="Next"
+                android:gravity="center"
+                app:icon="@drawable/ic_baseline_skip_next_24"
+                app:iconGravity="textStart" />
+
+        </com.google.android.material.button.MaterialButtonGroup>
+
+        <!-- Secondary controls -->
+        <com.google.android.material.button.MaterialButtonGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="32dp"
+            android:paddingBottom="48dp"
+            android:gravity="center_horizontal"
+            android:spacing="8dp">
+
             <Button
                 android:id="@+id/shuffleButton"
-                android:backgroundTint="?attr/colorSecondary"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_weight="0.5"
                 android:contentDescription="Shuffle"
                 android:gravity="center"
-                android:drawablePadding="0dp"
-                android:text=""
-                android:textSize="24dp"
-                app:iconGravity="textStart"
-                app:icon="@drawable/ic_outline_shuffle_24"/>
+                android:backgroundTint="?attr/colorSecondary"
+                app:icon="@drawable/ic_outline_shuffle_24"
+                app:iconGravity="textStart" />
+
             <Button
                 android:id="@+id/repeatButton"
                 android:layout_width="0dp"
-                android:backgroundTint="?attr/colorSecondary"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_height="48dp"
+                android:layout_weight="0.5"
                 android:contentDescription="Repeat"
                 android:gravity="center"
-                android:drawablePadding="0dp"
+                android:backgroundTint="?attr/colorSecondary"
                 android:text="REPEAT"
-                app:iconGravity="textStart"
-                android:textSize="24dp"/>
+                android:textSize="14sp"
+                app:iconGravity="textStart" />
+
         </com.google.android.material.button.MaterialButtonGroup>
 
     </LinearLayout>
