@@ -50,22 +50,31 @@
 
         </LinearLayout>
 
-        <!-- Album art container - optimized for visibility -->
-        <FrameLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_margin="32dp">
 
-            <ImageView
-                android:id="@+id/albumArt"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_outline_music_note_24"
-                tools:src="@tools:sample/backgrounds/scenic" />
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
 
-        </FrameLayout>
+                <ImageView
+                    android:id="@+id/albumArt"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_outline_music_note_24"
+                    tools:src="@tools:sample/backgrounds/scenic" />
+
+            </FrameLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Song info section -->
         <LinearLayout
@@ -169,7 +178,7 @@
             <Button
                 android:id="@+id/previousButton"
                 android:layout_width="0dp"
-                android:layout_height="112dp"
+                android:layout_height="64dp"
                 android:layout_weight="0.2"
                 android:contentDescription="Previous"
                 android:gravity="center"
@@ -179,18 +188,18 @@
             <Button
                 android:id="@+id/playPauseButton"
                 android:layout_width="0dp"
-                android:layout_height="112dp"
+                android:layout_height="64dp"
                 android:layout_weight="0.4"
                 android:contentDescription="Play"
                 android:gravity="center"
                 android:text="PLAY"
-                android:textSize="24sp"
+                android:textSize="21sp"
                 app:iconGravity="textStart" />
 
             <Button
                 android:id="@+id/nextButton"
                 android:layout_width="0dp"
-                android:layout_height="112dp"
+                android:layout_height="64dp"
                 android:layout_weight="0.2"
                 android:contentDescription="Next"
                 android:gravity="center"
@@ -204,15 +213,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="32dp"
-            android:paddingBottom="8dp"
+            android:paddingBottom="32dp"
             android:gravity="center_horizontal"
             android:spacing="4dp">
 
             <Button
                 android:id="@+id/shuffleButton"
                 android:layout_width="0dp"
-                android:layout_height="64dp"
-                android:layout_weight="0.4"
+                android:layout_height="48dp"
+                android:layout_weight="0.25"
                 android:contentDescription="Shuffle"
                 android:gravity="center"
                 android:backgroundTint="?attr/colorSecondary"
@@ -222,35 +231,41 @@
             <Button
                 android:id="@+id/repeatButton"
                 android:layout_width="0dp"
-                android:layout_height="64dp"
-                android:layout_weight="0.3"
+                android:layout_height="48dp"
+                android:layout_weight="0.25"
                 android:contentDescription="Shuffle"
                 android:gravity="center"
                 android:backgroundTint="?attr/colorSecondary"
-                app:icon="@drawable/ic_outline_repeat_24"
-                app:iconGravity="textStart" />
+                app:icon="@drawable/ic_outline_repeat_24"/>
+
+
+
+
+
 
             <Button
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:id="@+id/lyricButton"
                 android:layout_width="0dp"
-                android:layout_height="64dp"
-                android:layout_weight="0.4"
+                android:layout_height="48dp"
+                android:layout_weight="0.5"
                 android:contentDescription="Shuffle"
                 android:gravity="center"
-                android:backgroundTint="?attr/colorSecondary"
                 app:icon="@drawable/ic_outline_queue_music_24"
                 app:iconGravity="textStart" />
 
             <Button
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:id="@+id/queueButton"
                 android:layout_width="0dp"
-                android:layout_height="64dp"
-                android:layout_weight="0.4"
+                android:layout_height="48dp"
+                android:layout_weight="0.5"
                 android:contentDescription="Shuffle"
                 android:gravity="center"
-                android:backgroundTint="?attr/colorOnTertiaryContainer"
                 app:icon="@drawable/ic_round_playlist_play_24"
                 app:iconGravity="textStart" />
+
+
 
         </com.google.android.material.button.MaterialButtonGroup>
 

@@ -11,8 +11,6 @@
         android:layout_height="wrap_content"
         android:text="Lyrics"
         android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"
         android:gravity="center" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -30,7 +28,6 @@
             android:gravity="top|start"
             android:inputType="textMultiLine"
             android:scrollbars="vertical"
-            android:hint="Enter lyrics here..."
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
     </com.google.android.material.textfield.TextInputLayout>

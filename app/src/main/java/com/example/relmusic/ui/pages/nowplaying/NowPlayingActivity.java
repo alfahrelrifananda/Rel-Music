@@ -257,6 +257,7 @@ public class NowPlayingActivity extends AppCompatActivity {
         }
 
         loadAlbumArt();
+
     }
 
     private void loadAlbumArt() {
