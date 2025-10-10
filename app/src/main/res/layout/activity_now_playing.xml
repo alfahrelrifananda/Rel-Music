@@ -236,6 +236,7 @@
                 android:contentDescription="Shuffle"
                 android:gravity="center"
                 android:backgroundTint="?attr/colorSecondary"
+                app:iconGravity="textStart"
                 app:icon="@drawable/ic_outline_repeat_24"/>
 
 
