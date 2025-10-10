@@ -13,13 +13,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="16dp"
         android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/queuePosition"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="24dp"
+            android:layout_height="28dp"
             android:gravity="center"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:textStyle="bold"
@@ -46,10 +47,9 @@
                 android:id="@+id/queueSongTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                android:textStyle="bold"
-                android:maxLines="1"
                 android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 tools:text="Song Title" />
 
             <TextView
