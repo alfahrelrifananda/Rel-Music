@@ -20,15 +20,18 @@ import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -374,7 +377,6 @@ public class NowPlayingActivity extends AppCompatActivity {
         binding.playPauseButton.setOnClickListener(v -> togglePlayPause());
         binding.previousButton.setOnClickListener(v -> playPrevious());
         binding.nextButton.setOnClickListener(v -> playNext());
-        binding.backButton.setOnClickListener(v -> onBackPressed());
 
         binding.shuffleButton.setOnClickListener(v -> toggleShuffle());
         binding.repeatButton.setOnClickListener(v -> toggleRepeat());
@@ -558,6 +560,9 @@ public class NowPlayingActivity extends AppCompatActivity {
     }
 
     private void updateRepeatButton() {
+        int activeColor = getColorFromAttr(com.google.android.material.R.attr.colorPrimaryVariant);
+        int inactiveColor = getColorFromAttr(com.google.android.material.R.attr.colorOnSurfaceVariant);
+
         switch (repeatMode) {
             case MusicService.REPEAT_OFF:
                 binding.repeatButton.setAlpha(0.6f);
@@ -565,6 +570,7 @@ public class NowPlayingActivity extends AppCompatActivity {
                         R.drawable.ic_outline_repeat_24, 0, 0, 0
                 );
                 binding.repeatButton.setContentDescription("Repeat Off");
+                applyTintToCompoundDrawables(binding.repeatButton, inactiveColor);
                 break;
             case MusicService.REPEAT_ALL:
                 binding.repeatButton.setAlpha(1.0f);
@@ -572,6 +578,7 @@ public class NowPlayingActivity extends AppCompatActivity {
                         R.drawable.ic_outline_repeat_24, 0, 0, 0
                 );
                 binding.repeatButton.setContentDescription("Repeat All");
+                applyTintToCompoundDrawables(binding.repeatButton, activeColor);
                 break;
             case MusicService.REPEAT_ONE:
                 binding.repeatButton.setAlpha(1.0f);
@@ -579,10 +586,25 @@ public class NowPlayingActivity extends AppCompatActivity {
                         R.drawable.ic_baseline_repeat_one_24, 0, 0, 0
                 );
                 binding.repeatButton.setContentDescription("Repeat One");
+                applyTintToCompoundDrawables(binding.repeatButton, activeColor);
                 break;
         }
     }
 
+    private int getColorFromAttr(int attrResId) {
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(attrResId, typedValue, true);
+        return typedValue.data;
+    }
+
+    private void applyTintToCompoundDrawables(Button button, int color) {
+        Drawable[] drawables = button.getCompoundDrawables();
+        for (Drawable drawable : drawables) {
+            if (drawable != null) {
+                DrawableCompat.setTint(drawable, color);
+            }
+        }
+    }
     private void startSeekBarUpdates() {
         stopSeekBarUpdates();
 

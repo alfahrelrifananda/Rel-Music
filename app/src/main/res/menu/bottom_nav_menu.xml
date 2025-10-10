@@ -19,9 +19,9 @@
         android:title="@string/title_artist" />
 
 
-        <item
-            android:id="@+id/navigation_settings"
-            android:icon="@drawable/ic_settings_settings_input_component_24"
-            android:title="@string/title_settings" />
+<!--        <item-->
+<!--            android:id="@+id/navigation_settings"-->
+<!--            android:icon="@drawable/ic_settings_settings_input_component_24"-->
+<!--            android:title="@string/title_settings" />-->
 
 </menu>
