@@ -20,12 +20,18 @@ import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.palette.graphics.Palette;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
@@ -34,13 +40,20 @@ import com.example.relmusic.R;
 import com.example.relmusic.databinding.ActivityNowPlayingBinding;
 import com.example.relmusic.service.MusicService;
 import com.example.relmusic.ui.music.MusicItem;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class NowPlayingActivity extends AppCompatActivity {
+
+    private static final String LYRICS_PREFS = "LyricsPreferences";
 
     private ActivityNowPlayingBinding binding;
     private MusicService musicService;
@@ -174,6 +187,7 @@ public class NowPlayingActivity extends AppCompatActivity {
             updateRepeatButton();
         }
     }
+
     private void updateProgressFromService() {
         if (musicService != null && musicService.getMediaPlayer() != null) {
             try {
@@ -273,8 +287,6 @@ public class NowPlayingActivity extends AppCompatActivity {
                 });
     }
 
-
-
     private void applyBlurredBackground(Bitmap originalBitmap) {
         try {
             Bitmap blurredBitmap = blurBitmap(originalBitmap, 25f);
@@ -345,7 +357,6 @@ public class NowPlayingActivity extends AppCompatActivity {
         binding.playPauseButton.setTextColor(whiteColor);
 
         binding.previousButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(accentColor));
-        // For regular Button with compound drawable, use setCompoundDrawableTintList
         binding.previousButton.setCompoundDrawableTintList(android.content.res.ColorStateList.valueOf(whiteColor));
 
         binding.nextButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(accentColor));
@@ -366,6 +377,112 @@ public class NowPlayingActivity extends AppCompatActivity {
 
         binding.shuffleButton.setOnClickListener(v -> toggleShuffle());
         binding.repeatButton.setOnClickListener(v -> toggleRepeat());
+        binding.lyricButton.setOnClickListener(v -> showLyricsBottomSheet());
+        binding.queueButton.setOnClickListener(v -> showQueueBottomSheet());
+    }
+
+    private void showLyricsBottomSheet() {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_lyrics, null);
+
+        TextInputEditText lyricsEditText = view.findViewById(R.id.lyricsEditText);
+        MaterialButton saveLyricsButton = view.findViewById(R.id.saveLyricsButton);
+        MaterialButton addLyricsButton = view.findViewById(R.id.addLyricsButton);
+
+        // Load existing lyrics if available
+        String existingLyrics = getLyricsForCurrentSong();
+        if (existingLyrics != null && !existingLyrics.isEmpty()) {
+            lyricsEditText.setText(existingLyrics);
+            lyricsEditText.setEnabled(false);
+            addLyricsButton.setVisibility(View.GONE);
+            saveLyricsButton.setText("Edit");
+        } else {
+            lyricsEditText.setHint("No lyrics available. Add lyrics for this song.");
+            saveLyricsButton.setVisibility(View.GONE);
+        }
+
+        addLyricsButton.setOnClickListener(v -> {
+            String lyrics = lyricsEditText.getText().toString().trim();
+            if (!lyrics.isEmpty()) {
+                saveLyricsForCurrentSong(lyrics);
+                Toast.makeText(this, "Lyrics saved successfully", Toast.LENGTH_SHORT).show();
+                bottomSheetDialog.dismiss();
+            } else {
+                Toast.makeText(this, "Please enter lyrics", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        saveLyricsButton.setOnClickListener(v -> {
+            if (lyricsEditText.isEnabled()) {
+                String lyrics = lyricsEditText.getText().toString().trim();
+                if (!lyrics.isEmpty()) {
+                    saveLyricsForCurrentSong(lyrics);
+                    Toast.makeText(this, "Lyrics updated successfully", Toast.LENGTH_SHORT).show();
+                    bottomSheetDialog.dismiss();
+                } else {
+                    Toast.makeText(this, "Please enter lyrics", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                lyricsEditText.setEnabled(true);
+                saveLyricsButton.setText("Save");
+                addLyricsButton.setVisibility(View.GONE);
+            }
+        });
+
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
+    }
+
+    private void showQueueBottomSheet() {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_queue, null);
+
+        RecyclerView queueRecyclerView = view.findViewById(R.id.queueRecyclerView);
+        android.widget.TextView emptyQueueText = view.findViewById(R.id.emptyQueueText);
+
+        queueRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        List<MusicItem> queueList = getUpcomingQueue();
+
+        // Show/hide empty state
+        if (queueList.isEmpty()) {
+            queueRecyclerView.setVisibility(View.GONE);
+            emptyQueueText.setVisibility(View.VISIBLE);
+        } else {
+            queueRecyclerView.setVisibility(View.VISIBLE);
+            emptyQueueText.setVisibility(View.GONE);
+
+            QueueAdapter queueAdapter = new QueueAdapter(queueList);
+            queueRecyclerView.setAdapter(queueAdapter);
+        }
+
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
+    }
+
+    private String getLyricsForCurrentSong() {
+        if (currentSong == null) return null;
+
+        android.content.SharedPreferences prefs = getSharedPreferences(LYRICS_PREFS, Context.MODE_PRIVATE);
+        String key = "lyrics_" + currentSong.getId();
+        return prefs.getString(key, null);
+    }
+
+    private void saveLyricsForCurrentSong(String lyrics) {
+        if (currentSong == null) return;
+
+        android.content.SharedPreferences prefs = getSharedPreferences(LYRICS_PREFS, Context.MODE_PRIVATE);
+        android.content.SharedPreferences.Editor editor = prefs.edit();
+        String key = "lyrics_" + currentSong.getId();
+        editor.putString(key, lyrics);
+        editor.apply();
+    }
+
+    private List<MusicItem> getUpcomingQueue() {
+        if (musicService != null) {
+            return musicService.getUpcomingQueue();
+        }
+        return new ArrayList<>();
     }
 
     private void handleProgressTouch(float adjustedX, int usableWidth) {
@@ -443,20 +560,26 @@ public class NowPlayingActivity extends AppCompatActivity {
         switch (repeatMode) {
             case MusicService.REPEAT_OFF:
                 binding.repeatButton.setAlpha(0.6f);
-                binding.repeatButton.setText("REPEAT");
+                binding.repeatButton.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.ic_outline_repeat_24, 0, 0, 0
+                );
+                binding.repeatButton.setContentDescription("Repeat Off");
                 break;
             case MusicService.REPEAT_ALL:
                 binding.repeatButton.setAlpha(1.0f);
-                binding.repeatButton.setText("REPEAT");
+                binding.repeatButton.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.ic_outline_repeat_24, 0, 0, 0
+                );
+                binding.repeatButton.setContentDescription("Repeat All");
                 break;
             case MusicService.REPEAT_ONE:
                 binding.repeatButton.setAlpha(1.0f);
-                binding.repeatButton.setText("REPEAT ONE");
+                binding.repeatButton.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.ic_baseline_repeat_one_24, 0, 0, 0
+                );
+                binding.repeatButton.setContentDescription("Repeat One");
                 break;
         }
-
-        binding.repeatButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
-        binding.repeatButton.setCompoundDrawablePadding(0);
     }
 
     private void startSeekBarUpdates() {
@@ -519,6 +642,75 @@ public class NowPlayingActivity extends AppCompatActivity {
 
         if (musicUpdateReceiver != null) {
             unregisterReceiver(musicUpdateReceiver);
+        }
+    }
+
+    // Queue Adapter for RecyclerView
+    private static class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.QueueViewHolder> {
+
+        private List<MusicItem> queueList;
+
+        public QueueAdapter(List<MusicItem> queueList) {
+            this.queueList = queueList;
+        }
+
+        @Override
+        public QueueViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_queue_song, parent, false);
+            return new QueueViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(QueueViewHolder holder, int position) {
+            MusicItem item = queueList.get(position);
+            holder.bind(item, position);
+        }
+
+        @Override
+        public int getItemCount() {
+            return queueList.size();
+        }
+
+        static class QueueViewHolder extends RecyclerView.ViewHolder {
+
+            private android.widget.TextView queuePosition;
+            private android.widget.ImageView queueAlbumArt;
+            private android.widget.TextView queueSongTitle;
+            private android.widget.TextView queueSongArtist;
+            private android.widget.TextView queueSongDuration;
+
+            public QueueViewHolder(View itemView) {
+                super(itemView);
+                queuePosition = itemView.findViewById(R.id.queuePosition);
+                queueAlbumArt = itemView.findViewById(R.id.queueAlbumArt);
+                queueSongTitle = itemView.findViewById(R.id.queueSongTitle);
+                queueSongArtist = itemView.findViewById(R.id.queueSongArtist);
+                queueSongDuration = itemView.findViewById(R.id.queueSongDuration);
+            }
+
+            void bind(MusicItem item, int position) {
+                // Set position number (starting from 1)
+                queuePosition.setText(String.valueOf(position + 1));
+
+                // Set song title and artist
+                queueSongTitle.setText(item.getTitle());
+                queueSongArtist.setText(item.getArtist());
+
+                // Format and set duration
+                long duration = item.getDuration();
+                long minutes = TimeUnit.MILLISECONDS.toMinutes(duration);
+                long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) - TimeUnit.MINUTES.toSeconds(minutes);
+                String formattedDuration = String.format("%d:%02d", minutes, seconds);
+                queueSongDuration.setText(formattedDuration);
+
+                // Load album art with Glide
+                Glide.with(itemView.getContext())
+                        .load(item.getAlbumArtUri())
+                        .placeholder(R.drawable.ic_outline_music_note_24)
+                        .error(R.drawable.ic_outline_music_note_24)
+                        .into(queueAlbumArt);
+            }
         }
     }
 }

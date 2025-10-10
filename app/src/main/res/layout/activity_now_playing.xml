@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingVertical="8dp">
+            android:paddingVertical="0dp">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/backButton"
@@ -73,7 +73,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="32dp"
-            android:paddingVertical="8dp"
+            android:paddingVertical="0dp"
             android:gravity="center">
 
             <TextView
@@ -161,15 +161,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="32dp"
-            android:paddingVertical="16dp"
+            android:paddingVertical="0dp"
+            android:paddingTop="8dp"
             android:gravity="center_horizontal"
-            android:spacing="8dp">
+            android:spacing="4dp">
 
             <Button
                 android:id="@+id/previousButton"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_weight="0.3"
+                android:layout_height="112dp"
+                android:layout_weight="0.2"
                 android:contentDescription="Previous"
                 android:gravity="center"
                 app:icon="@drawable/ic_baseline_skip_previous_24"
@@ -178,19 +179,19 @@
             <Button
                 android:id="@+id/playPauseButton"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="112dp"
                 android:layout_weight="0.4"
                 android:contentDescription="Play"
                 android:gravity="center"
                 android:text="PLAY"
-                android:textSize="16sp"
+                android:textSize="24sp"
                 app:iconGravity="textStart" />
 
             <Button
                 android:id="@+id/nextButton"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_weight="0.3"
+                android:layout_height="112dp"
+                android:layout_weight="0.2"
                 android:contentDescription="Next"
                 android:gravity="center"
                 app:icon="@drawable/ic_baseline_skip_next_24"
@@ -203,15 +204,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="32dp"
-            android:paddingBottom="48dp"
+            android:paddingBottom="8dp"
             android:gravity="center_horizontal"
-            android:spacing="8dp">
+            android:spacing="4dp">
 
             <Button
                 android:id="@+id/shuffleButton"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="0.5"
+                android:layout_height="64dp"
+                android:layout_weight="0.4"
                 android:contentDescription="Shuffle"
                 android:gravity="center"
                 android:backgroundTint="?attr/colorSecondary"
@@ -221,13 +222,34 @@
             <Button
                 android:id="@+id/repeatButton"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="0.5"
-                android:contentDescription="Repeat"
+                android:layout_height="64dp"
+                android:layout_weight="0.3"
+                android:contentDescription="Shuffle"
                 android:gravity="center"
                 android:backgroundTint="?attr/colorSecondary"
-                android:text="REPEAT"
-                android:textSize="14sp"
+                app:icon="@drawable/ic_outline_repeat_24"
+                app:iconGravity="textStart" />
+
+            <Button
+                android:id="@+id/lyricButton"
+                android:layout_width="0dp"
+                android:layout_height="64dp"
+                android:layout_weight="0.4"
+                android:contentDescription="Shuffle"
+                android:gravity="center"
+                android:backgroundTint="?attr/colorSecondary"
+                app:icon="@drawable/ic_outline_queue_music_24"
+                app:iconGravity="textStart" />
+
+            <Button
+                android:id="@+id/queueButton"
+                android:layout_width="0dp"
+                android:layout_height="64dp"
+                android:layout_weight="0.4"
+                android:contentDescription="Shuffle"
+                android:gravity="center"
+                android:backgroundTint="?attr/colorOnTertiaryContainer"
+                app:icon="@drawable/ic_round_playlist_play_24"
                 app:iconGravity="textStart" />
 
         </com.google.android.material.button.MaterialButtonGroup>
