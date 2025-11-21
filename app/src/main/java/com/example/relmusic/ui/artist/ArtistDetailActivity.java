@@ -42,6 +42,7 @@ import com.example.relmusic.service.MusicService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -200,27 +201,34 @@ public class ArtistDetailActivity extends AppCompatActivity {
                 return;
             }
 
-            // Enable shuffle mode
-            Intent shuffleIntent = new Intent(this, MusicService.class);
-            shuffleIntent.setAction(MusicService.ACTION_TOGGLE_SHUFFLE);
-            startService(shuffleIntent);
+            // Pick a random song to start with
+            Random random = new Random();
+            int randomIndex = random.nextInt(artistSongs.size());
+            MusicItem randomSong = artistSongs.get(randomIndex);
 
-            // Set the playlist
+            // Set the playlist with the random song as starting point
             Intent playlistIntent = new Intent(this, MusicService.class);
             playlistIntent.setAction(MusicService.ACTION_SET_PLAYLIST);
             playlistIntent.putParcelableArrayListExtra("playlist", new ArrayList<>(artistSongs));
-            playlistIntent.putExtra("start_index", 0);
+            playlistIntent.putExtra("start_index", randomIndex);
             startService(playlistIntent);
 
-            // Start playing the first song (or shuffled first song)
+            // Small delay to ensure playlist is set
             new android.os.Handler().postDelayed(() -> {
-                Intent playIntent = new Intent(this, MusicService.class);
-                playIntent.setAction(MusicService.ACTION_PLAY);
-                playIntent.putExtra("music_item", artistSongs.get(0));
-                startService(playIntent);
+                // Enable shuffle mode
+                Intent shuffleIntent = new Intent(this, MusicService.class);
+                shuffleIntent.setAction(MusicService.ACTION_TOGGLE_SHUFFLE);
+                startService(shuffleIntent);
 
-                Toast.makeText(this, "Playing artist songs in shuffle mode", Toast.LENGTH_SHORT).show();
-            }, 100);
+                // Another small delay to ensure shuffle is complete
+                new android.os.Handler().postDelayed(() -> {
+                    // Play the random song
+                    Intent playIntent = new Intent(this, MusicService.class);
+                    playIntent.setAction(MusicService.ACTION_PLAY);
+                    playIntent.putExtra("music_item", randomSong);
+                    startService(playIntent);
+                }, 50);
+            }, 50);
         });
     }
 
