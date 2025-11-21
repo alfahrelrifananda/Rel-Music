@@ -56,6 +56,7 @@ public class ArtistDetailActivity extends AppCompatActivity {
     private RecyclerView songsRecyclerView;
     private View loadingLayout;
     private View emptyState;
+    private MaterialButton shuffleArtistButton;
 
     private MaterialCardView miniPlayerContainer;
     private ImageView miniAlbumArt;
@@ -146,6 +147,7 @@ public class ArtistDetailActivity extends AppCompatActivity {
             setupToolbar();
             setupArtistHeader();
             setupRecyclerView();
+            setupShuffleButton();
 
             loadArtistSongs();
 
@@ -175,10 +177,11 @@ public class ArtistDetailActivity extends AppCompatActivity {
             songsRecyclerView = findViewById(R.id.songsRecyclerView);
             loadingLayout = findViewById(R.id.loadingLayout);
             emptyState = findViewById(R.id.emptyState);
+            shuffleArtistButton = findViewById(R.id.shuffleArtistButton);
 
             if (toolbar == null || artistImageView == null || artistNameTextView == null ||
                     songCountTextView == null || songsRecyclerView == null ||
-                    loadingLayout == null || emptyState == null) {
+                    loadingLayout == null || emptyState == null || shuffleArtistButton == null) {
                 Log.e(TAG, "One or more artist views are null");
                 return false;
             }
@@ -188,6 +191,37 @@ public class ArtistDetailActivity extends AppCompatActivity {
             Log.e(TAG, "Error initializing views: " + e.getMessage(), e);
             return false;
         }
+    }
+
+    private void setupShuffleButton() {
+        shuffleArtistButton.setOnClickListener(v -> {
+            if (artistSongs.isEmpty()) {
+                Toast.makeText(this, "No songs to shuffle", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Enable shuffle mode
+            Intent shuffleIntent = new Intent(this, MusicService.class);
+            shuffleIntent.setAction(MusicService.ACTION_TOGGLE_SHUFFLE);
+            startService(shuffleIntent);
+
+            // Set the playlist
+            Intent playlistIntent = new Intent(this, MusicService.class);
+            playlistIntent.setAction(MusicService.ACTION_SET_PLAYLIST);
+            playlistIntent.putParcelableArrayListExtra("playlist", new ArrayList<>(artistSongs));
+            playlistIntent.putExtra("start_index", 0);
+            startService(playlistIntent);
+
+            // Start playing the first song (or shuffled first song)
+            new android.os.Handler().postDelayed(() -> {
+                Intent playIntent = new Intent(this, MusicService.class);
+                playIntent.setAction(MusicService.ACTION_PLAY);
+                playIntent.putExtra("music_item", artistSongs.get(0));
+                startService(playIntent);
+
+                Toast.makeText(this, "Playing artist songs in shuffle mode", Toast.LENGTH_SHORT).show();
+            }, 100);
+        });
     }
 
     private boolean initializeMiniPlayer() {
