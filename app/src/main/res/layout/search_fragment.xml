@@ -181,23 +181,20 @@
 
     </FrameLayout>
 
-    <!-- Mini Player -->
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/mini_player_container"
+        android:id="@+id/miniPlayerContainer"
         android:layout_width="match_parent"
         android:layout_height="92dp"
         android:layout_gravity="bottom"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="32dp"
-        app:cardBackgroundColor="?attr/colorSurfaceContainerLowest"
-        app:cardCornerRadius="48dp"
+        app:cardCornerRadius="16dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
         android:visibility="gone"
         app:strokeColor="@color/transparent"
         android:clickable="true"
         android:focusable="true"
-        android:foreground="?attr/selectableItemBackground"
-        android:elevation="16dp">
+        android:foreground="?attr/selectableItemBackground">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -209,14 +206,14 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                app:cardCornerRadius="32dp"
+                app:cardCornerRadius="8dp"
                 app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:strokeColor="@color/transparent"
                 app:strokeWidth="0dp"
                 app:cardElevation="0dp">
 
                 <ImageView
-                    android:id="@+id/mini_album_art"
+                    android:id="@+id/miniAlbumArt"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
@@ -232,7 +229,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/mini_song_title"
+                    android:id="@+id/miniSongTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Song Title"
@@ -242,7 +239,7 @@
                     android:ellipsize="end" />
 
                 <TextView
-                    android:id="@+id/mini_artist_name"
+                    android:id="@+id/miniArtistName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Artist Name"
@@ -254,7 +251,7 @@
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/mini_play_pause_button"
+                android:id="@+id/miniPlayPauseButton"
                 style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="50dp"
                 android:layout_height="40dp"
@@ -273,7 +270,7 @@
                 android:contentDescription="Play/Pause" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/mini_next_button"
+                android:id="@+id/miniNextButton"
                 style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="60dp"
                 android:layout_height="40dp"
@@ -284,7 +281,7 @@
                 android:contentDescription="Next" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/mini_close_button"
+                android:id="@+id/miniCloseButton"
                 style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="40dp"
                 android:layout_height="40dp"

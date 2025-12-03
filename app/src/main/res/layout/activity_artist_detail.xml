@@ -28,6 +28,7 @@
                 android:scaleType="centerCrop"
                 android:fitsSystemWindows="true"
                 app:layout_collapseMode="parallax"
+                android:foreground="@color/black_overlay"
                 app:layout_collapseParallaxMultiplier="0.7"
                 tools:src="@drawable/ic_outline_person_24"
                 android:contentDescription="Artist background image" />
@@ -192,15 +193,13 @@
         android:layout_gravity="bottom"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        app:cardBackgroundColor="?attr/colorSurfaceContainerLowest"
+        app:cardCornerRadius="16dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
         android:visibility="gone"
-        app:cardCornerRadius="48dp"
         app:strokeColor="@color/transparent"
         android:clickable="true"
         android:focusable="true"
-        android:foreground="?attr/selectableItemBackground"
-        android:elevation="16dp">
+        android:foreground="?attr/selectableItemBackground">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -212,7 +211,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                app:cardCornerRadius="32dp"
+                app:cardCornerRadius="8dp"
                 app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:strokeColor="@color/transparent"
                 app:strokeWidth="0dp"

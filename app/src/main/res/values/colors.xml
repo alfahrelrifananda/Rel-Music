@@ -4,4 +4,5 @@
     <color name="black">#000000</color>
     <color name="white">#fff</color>
     <color name="seekbar_background">#33FFFFFF</color>
+    <color name="black_overlay">#60000000</color>
 </resources>

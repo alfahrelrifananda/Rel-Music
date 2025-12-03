@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -26,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowCompat;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
@@ -40,12 +43,18 @@ import com.example.relmusic.service.MusicService;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private static final int REFRESH_ANIMATION_DURATION = 1000;
+    private static final int REFRESH_COOLDOWN_DURATION = 2000;
+    private static final int MINI_PLAYER_ANIMATION_DURATION = 300;
+    private static final int ALBUM_ART_ROTATION_DURATION = 8000;
+    private static final float TOOLBAR_FADE_THRESHOLD = 0.7f;
 
     private ActivityMainBinding binding;
     private TextView toolbarTitle;
     private CollapsingToolbarLayout collapsingToolbar;
     private String currentTitle = "RelMusic";
 
+    // Mini Player Components
     private MaterialCardView miniPlayerContainer;
     private ImageView miniAlbumArt;
     private TextView miniSongTitle;
@@ -54,15 +63,17 @@ public class MainActivity extends AppCompatActivity {
     private MaterialButton miniNextButton;
     private MaterialButton miniCloseButton;
 
-    private ObjectAnimator albumArtRotationAnimator;
-
+    // State Management
     private MusicItem currentPlayingItem;
     private boolean isPlaying = false;
     private boolean isMiniPlayerVisible = false;
     private boolean isReceiverRegistered = false;
     private boolean isActivityDestroyed = false;
 
-    private BroadcastReceiver musicUpdateReceiver = new BroadcastReceiver() {
+    // Handlers
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    private final BroadcastReceiver musicUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (isActivityDestroyed || isFinishing() || isDestroyed()) {
@@ -71,24 +82,24 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 String action = intent.getAction();
-                if (action != null) {
-                    switch (action) {
-                        case MusicService.ACTION_MUSIC_UPDATED:
-                            MusicItem musicItem = intent.getParcelableExtra("music_item");
-                            boolean playing = intent.getBooleanExtra("is_playing", false);
-                            if (musicItem != null) {
-                                showMiniPlayer(musicItem);
-                                updateMiniPlayerState(playing);
-                            }
-                            break;
-                        case MusicService.ACTION_PLAYBACK_STATE_CHANGED:
-                            boolean playingState = intent.getBooleanExtra("is_playing", false);
-                            updateMiniPlayerState(playingState);
-                            break;
-                        case MusicService.ACTION_HIDE_MINI_PLAYER:
-                            hideMiniPlayer();
-                            break;
-                    }
+                if (action == null) return;
+
+                switch (action) {
+                    case MusicService.ACTION_MUSIC_UPDATED:
+                        MusicItem musicItem = intent.getParcelableExtra("music_item");
+                        boolean playing = intent.getBooleanExtra("is_playing", false);
+                        if (musicItem != null) {
+                            showMiniPlayer(musicItem);
+                            updateMiniPlayerState(playing);
+                        }
+                        break;
+                    case MusicService.ACTION_PLAYBACK_STATE_CHANGED:
+                        boolean playingState = intent.getBooleanExtra("is_playing", false);
+                        updateMiniPlayerState(playingState);
+                        break;
+                    case MusicService.ACTION_HIDE_MINI_PLAYER:
+                        hideMiniPlayer();
+                        break;
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Error handling broadcast: " + e.getMessage(), e);
@@ -120,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
             setupNavigation();
             setupToolbarActions();
-            searchMusic();
+            setupSearchButton();
             registerMusicUpdateReceiver();
 
         } catch (Exception e) {
@@ -167,12 +178,9 @@ public class MainActivity extends AppCompatActivity {
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
             NavigationUI.setupWithNavController(binding.navView, navController);
 
-            navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
-                @Override
-                public void onDestinationChanged(NavController controller, NavDestination destination, Bundle arguments) {
-                    if (!isActivityDestroyed) {
-                        updateTitle(destination.getId());
-                    }
+            navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+                if (!isActivityDestroyed) {
+                    updateTitle(destination.getId());
                 }
             });
         } catch (Exception e) {
@@ -183,240 +191,164 @@ public class MainActivity extends AppCompatActivity {
     private void setupToolbarActions() {
         try {
             MaterialButton refreshButton = findViewById(R.id.refresh_button);
-
             if (refreshButton != null) {
-                refreshButton.setOnClickListener(v -> {
-                    refreshMusicFragmentData();
-                });
+                refreshButton.setOnClickListener(v -> refreshMusicFragmentData());
             }
         } catch (Exception e) {
             Log.e(TAG, "Error setting up toolbar actions: " + e.getMessage(), e);
         }
     }
 
-    private void searchMusic() {
+    private void setupSearchButton() {
         MaterialButton searchButton = findViewById(R.id.search_button);
-        searchButton.setOnClickListener( v -> {
-            Intent searchIntent = new Intent(this, SearchActivity.class);
-            startActivity(searchIntent);
-           }
-        );
+        if (searchButton != null) {
+            searchButton.setOnClickListener(v -> {
+                Intent searchIntent = new Intent(this, SearchActivity.class);
+                startActivity(searchIntent);
+            });
+        }
     }
 
     private void refreshMusicFragmentData() {
         try {
             MaterialButton refreshButton = findViewById(R.id.refresh_button);
+            if (refreshButton == null) return;
 
-            if (refreshButton != null) {
-                refreshButton.animate()
-                        .rotation(360f)
-                        .setDuration(1000)
-                        .setInterpolator(new LinearInterpolator())
-                        .withEndAction(() -> {
-                            if (!isActivityDestroyed && refreshButton != null) {
-                                refreshButton.setRotation(0f);
-                            }
-                        })
-                        .start();
+            // Animate refresh button
+            animateRefreshButton(refreshButton);
 
-                refreshButton.setEnabled(false);
-                new android.os.Handler().postDelayed(() -> {
-                    if (!isActivityDestroyed && refreshButton != null) {
-                        refreshButton.setEnabled(true);
-                    }
-                }, 2000);
-            }
+            // Clear all caches
+            clearAllFragmentCaches();
 
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+            NavDestination currentDestination = navController.getCurrentDestination();
 
-            com.example.relmusic.ui.album.AlbumFragment.clearCache();
-            com.example.relmusic.ui.artist.ArtistFragment.clearCache();
+            if (currentDestination == null) {
+                refreshAllFragmentsInBackground();
+                showRefreshToast("Refreshing all libraries...");
+                return;
+            }
 
-            if (navController.getCurrentDestination() != null &&
-                    navController.getCurrentDestination().getId() == R.id.navigation_music) {
+            int destinationId = currentDestination.getId();
 
-                refreshCurrentFragment("MusicFragment");
-                refreshAlbumFragmentInBackground();
-                refreshArtistFragmentInBackground();
-                Toast.makeText(this, "Refreshing music, album, and artist library...", Toast.LENGTH_SHORT).show();
-
-            } else if (navController.getCurrentDestination() != null &&
-                    navController.getCurrentDestination().getId() == R.id.navigation_album) {
-
-                refreshCurrentFragment("AlbumFragment");
-                refreshMusicFragmentInBackground();
-                refreshArtistFragmentInBackground();
-                Toast.makeText(this, "Refreshing album, music, and artist library...", Toast.LENGTH_SHORT).show();
-
-            } else if (navController.getCurrentDestination() != null &&
-                    navController.getCurrentDestination().getId() == R.id.navigation_artist) {
-
-                refreshCurrentFragment("ArtistFragment");
-                refreshMusicFragmentInBackground();
-                refreshAlbumFragmentInBackground();
-                Toast.makeText(this, "Refreshing artist, music, and album library...", Toast.LENGTH_SHORT).show();
-
+            // Refresh based on current destination
+            if (destinationId == R.id.navigation_music) {
+                refreshFragmentByType(com.example.relmusic.ui.music.MusicFragment.class);
+                refreshFragmentInBackground(com.example.relmusic.ui.album.AlbumFragment.class);
+                refreshFragmentInBackground(com.example.relmusic.ui.artist.ArtistFragment.class);
+                showRefreshToast("Refreshing music, album, and artist library...");
+            } else if (destinationId == R.id.navigation_album) {
+                refreshFragmentByType(com.example.relmusic.ui.album.AlbumFragment.class);
+                refreshFragmentInBackground(com.example.relmusic.ui.music.MusicFragment.class);
+                refreshFragmentInBackground(com.example.relmusic.ui.artist.ArtistFragment.class);
+                showRefreshToast("Refreshing album, music, and artist library...");
+            } else if (destinationId == R.id.navigation_artist) {
+                refreshFragmentByType(com.example.relmusic.ui.artist.ArtistFragment.class);
+                refreshFragmentInBackground(com.example.relmusic.ui.music.MusicFragment.class);
+                refreshFragmentInBackground(com.example.relmusic.ui.album.AlbumFragment.class);
+                showRefreshToast("Refreshing artist, music, and album library...");
             } else {
-                refreshAllFragments();
-                Toast.makeText(this, "Refreshing music, album, and artist library...", Toast.LENGTH_SHORT).show();
+                refreshAllFragmentsInBackground();
+                showRefreshToast("Refreshing all libraries...");
             }
 
         } catch (Exception e) {
             Log.e(TAG, "Error refreshing fragments: " + e.getMessage(), e);
-            Toast.makeText(this, "Error refreshing library", Toast.LENGTH_SHORT).show();
-
-            MaterialButton refreshButton = findViewById(R.id.refresh_button);
-            if (refreshButton != null) {
-                refreshButton.setEnabled(true);
-                refreshButton.setRotation(0f);
-            }
+            showRefreshToast("Error refreshing library");
+            resetRefreshButton();
         }
     }
 
-    private void refreshCurrentFragment(String expectedFragmentType) {
+    private void animateRefreshButton(MaterialButton refreshButton) {
+        refreshButton.animate()
+                .rotation(360f)
+                .setDuration(REFRESH_ANIMATION_DURATION)
+                .setInterpolator(new LinearInterpolator())
+                .withEndAction(() -> {
+                    if (!isActivityDestroyed && refreshButton != null) {
+                        refreshButton.setRotation(0f);
+                    }
+                })
+                .start();
+
+        refreshButton.setEnabled(false);
+        mainHandler.postDelayed(() -> {
+            if (!isActivityDestroyed && refreshButton != null) {
+                refreshButton.setEnabled(true);
+            }
+        }, REFRESH_COOLDOWN_DURATION);
+    }
+
+    private void clearAllFragmentCaches() {
+        com.example.relmusic.ui.album.AlbumFragment.clearCache();
+        com.example.relmusic.ui.artist.ArtistFragment.clearCache();
+    }
+
+    private void showRefreshToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void resetRefreshButton() {
+        MaterialButton refreshButton = findViewById(R.id.refresh_button);
+        if (refreshButton != null) {
+            refreshButton.setEnabled(true);
+            refreshButton.setRotation(0f);
+        }
+    }
+
+    // Generic method to refresh fragments by type
+    private <T extends Fragment> void refreshFragmentByType(Class<T> fragmentClass) {
         try {
-            androidx.fragment.app.Fragment navHostFragment = getSupportFragmentManager()
+            Fragment navHostFragment = getSupportFragmentManager()
                     .findFragmentById(R.id.nav_host_fragment_activity_main);
 
             if (navHostFragment != null) {
-                androidx.fragment.app.Fragment currentFragment = navHostFragment.getChildFragmentManager()
+                Fragment currentFragment = navHostFragment.getChildFragmentManager()
                         .getPrimaryNavigationFragment();
 
-                if (expectedFragmentType.equals("MusicFragment") &&
-                        currentFragment instanceof com.example.relmusic.ui.music.MusicFragment) {
-
-                    com.example.relmusic.ui.music.MusicFragment musicFragment =
-                            (com.example.relmusic.ui.music.MusicFragment) currentFragment;
-                    musicFragment.refreshData();
-
-                } else if (expectedFragmentType.equals("AlbumFragment") &&
-                        currentFragment instanceof com.example.relmusic.ui.album.AlbumFragment) {
-
-                    com.example.relmusic.ui.album.AlbumFragment albumFragment =
-                            (com.example.relmusic.ui.album.AlbumFragment) currentFragment;
-                    albumFragment.refreshData();
-
-                } else if (expectedFragmentType.equals("ArtistFragment") &&
-                        currentFragment instanceof com.example.relmusic.ui.artist.ArtistFragment) {
-
-                    com.example.relmusic.ui.artist.ArtistFragment artistFragment =
-                            (com.example.relmusic.ui.artist.ArtistFragment) currentFragment;
-                    artistFragment.refreshData();
+                if (currentFragment != null && fragmentClass.isInstance(currentFragment)) {
+                    refreshFragment(currentFragment);
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error refreshing current fragment: " + e.getMessage(), e);
+            Log.e(TAG, "Error refreshing fragment by type: " + e.getMessage(), e);
         }
     }
 
-    private void refreshArtistFragmentInBackground() {
+    // Generic method to refresh fragments in background
+    private <T extends Fragment> void refreshFragmentInBackground(Class<T> fragmentClass) {
         try {
-            androidx.fragment.app.Fragment navHostFragment = getSupportFragmentManager()
+            Fragment navHostFragment = getSupportFragmentManager()
                     .findFragmentById(R.id.nav_host_fragment_activity_main);
 
             if (navHostFragment != null) {
-                java.util.List<androidx.fragment.app.Fragment> childFragments =
-                        navHostFragment.getChildFragmentManager().getFragments();
-
-                for (androidx.fragment.app.Fragment fragment : childFragments) {
-                    if (fragment instanceof com.example.relmusic.ui.artist.ArtistFragment) {
-                        com.example.relmusic.ui.artist.ArtistFragment artistFragment =
-                                (com.example.relmusic.ui.artist.ArtistFragment) fragment;
-                        artistFragment.refreshData();
+                for (Fragment fragment : navHostFragment.getChildFragmentManager().getFragments()) {
+                    if (fragmentClass.isInstance(fragment)) {
+                        refreshFragment(fragment);
                         break;
                     }
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error refreshing artist fragment in background: " + e.getMessage(), e);
+            Log.e(TAG, "Error refreshing fragment in background: " + e.getMessage(), e);
         }
     }
 
-
-    private void refreshAlbumFragmentInBackground() {
-        try {
-            androidx.fragment.app.Fragment navHostFragment = getSupportFragmentManager()
-                    .findFragmentById(R.id.nav_host_fragment_activity_main);
-
-            if (navHostFragment != null) {
-                java.util.List<androidx.fragment.app.Fragment> childFragments =
-                        navHostFragment.getChildFragmentManager().getFragments();
-
-                for (androidx.fragment.app.Fragment fragment : childFragments) {
-                    if (fragment instanceof com.example.relmusic.ui.album.AlbumFragment) {
-                        com.example.relmusic.ui.album.AlbumFragment albumFragment =
-                                (com.example.relmusic.ui.album.AlbumFragment) fragment;
-                        albumFragment.refreshData();
-                        break;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error refreshing album fragment in background: " + e.getMessage(), e);
+    // Centralized fragment refresh method
+    private void refreshFragment(Fragment fragment) {
+        if (fragment instanceof com.example.relmusic.ui.music.MusicFragment) {
+            ((com.example.relmusic.ui.music.MusicFragment) fragment).refreshData();
+        } else if (fragment instanceof com.example.relmusic.ui.album.AlbumFragment) {
+            ((com.example.relmusic.ui.album.AlbumFragment) fragment).refreshData();
+        } else if (fragment instanceof com.example.relmusic.ui.artist.ArtistFragment) {
+            ((com.example.relmusic.ui.artist.ArtistFragment) fragment).refreshData();
         }
     }
 
-    private void refreshMusicFragmentInBackground() {
-        try {
-            androidx.fragment.app.Fragment navHostFragment = getSupportFragmentManager()
-                    .findFragmentById(R.id.nav_host_fragment_activity_main);
-
-            if (navHostFragment != null) {
-                java.util.List<androidx.fragment.app.Fragment> childFragments =
-                        navHostFragment.getChildFragmentManager().getFragments();
-
-                for (androidx.fragment.app.Fragment fragment : childFragments) {
-                    if (fragment instanceof com.example.relmusic.ui.music.MusicFragment) {
-                        com.example.relmusic.ui.music.MusicFragment musicFragment =
-                                (com.example.relmusic.ui.music.MusicFragment) fragment;
-                        musicFragment.refreshData();
-                        break;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error refreshing music fragment in background: " + e.getMessage(), e);
-        }
-    }
-
-    private void refreshAllFragments() {
-        try {
-            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-
-            int currentDestination = navController.getCurrentDestination() != null ?
-                    navController.getCurrentDestination().getId() : R.id.navigation_music;
-
-            navController.navigate(R.id.navigation_music);
-
-            new android.os.Handler().postDelayed(() -> {
-                refreshCurrentFragment("MusicFragment");
-
-                navController.navigate(R.id.navigation_album);
-
-                new android.os.Handler().postDelayed(() -> {
-                    refreshCurrentFragment("AlbumFragment");
-
-                    navController.navigate(R.id.navigation_artist);
-
-                    new android.os.Handler().postDelayed(() -> {
-                        refreshCurrentFragment("ArtistFragment");
-
-                        if (currentDestination != R.id.navigation_artist) {
-                            new android.os.Handler().postDelayed(() -> {
-                                try {
-                                    navController.navigate(currentDestination);
-                                } catch (Exception e) {
-                                    Log.e(TAG, "Error navigating back: " + e.getMessage(), e);
-                                }
-                            }, 300);
-                        }
-                    }, 300);
-                }, 300);
-            }, 300);
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error refreshing all fragments: " + e.getMessage(), e);
-        }
+    private void refreshAllFragmentsInBackground() {
+        refreshFragmentInBackground(com.example.relmusic.ui.music.MusicFragment.class);
+        refreshFragmentInBackground(com.example.relmusic.ui.album.AlbumFragment.class);
+        refreshFragmentInBackground(com.example.relmusic.ui.artist.ArtistFragment.class);
     }
 
     private void enableEdgeToEdge() {
@@ -436,12 +368,10 @@ public class MainActivity extends AppCompatActivity {
     private void setupWindowInsets() {
         try {
             View rootView = binding.getRoot();
-            if (rootView == null) {
-                return;
-            }
+            if (rootView == null) return;
 
             ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, windowInsets) -> {
-                androidx.core.graphics.Insets navigationBar = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars());
+                windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars());
                 return WindowInsetsCompat.CONSUMED;
             });
         } catch (Exception e) {
@@ -489,50 +419,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
 
-
-            miniPlayerContainer.setOnClickListener(v -> {
-                if (!isActivityDestroyed) {
-                    openNowPlayingActivity();
-                }
-            });
-
-            miniPlayPauseButton.setOnClickListener(v -> {
-                if (!isActivityDestroyed) {
-                    try {
-                        Intent serviceIntent = new Intent(this, MusicService.class);
-                        serviceIntent.setAction(MusicService.ACTION_TOGGLE_PLAY_PAUSE);
-                        startService(serviceIntent);
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error toggling play/pause: " + e.getMessage(), e);
-                    }
-                }
-            });
-
-            miniNextButton.setOnClickListener(v -> {
-                if (!isActivityDestroyed) {
-                    try {
-                        Intent serviceIntent = new Intent(this, MusicService.class);
-                        serviceIntent.setAction(MusicService.ACTION_NEXT);
-                        startService(serviceIntent);
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error playing next: " + e.getMessage(), e);
-                    }
-                }
-            });
-
-            miniCloseButton.setOnClickListener(v -> {
-                if (!isActivityDestroyed) {
-                    try {
-                        Intent serviceIntent = new Intent(this, MusicService.class);
-                        serviceIntent.setAction(MusicService.ACTION_STOP);
-                        startService(serviceIntent);
-                        hideMiniPlayer();
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error stopping music: " + e.getMessage(), e);
-                    }
-                }
-            });
-
+            setupMiniPlayerClickListeners();
             return true;
         } catch (Exception e) {
             Log.e(TAG, "Error initializing mini player: " + e.getMessage(), e);
@@ -540,47 +427,42 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void startAlbumArtRotation() {
-        try {
-            if (miniAlbumArt != null) {
-                stopAlbumArtRotation();
-
-                miniAlbumArt.animate()
-                        .rotation(360f)
-                        .setDuration(8000)
-                        .setInterpolator(new LinearInterpolator())
-                        .withEndAction(() -> {
-                            if (!isActivityDestroyed && isPlaying && isMiniPlayerVisible) {
-                                miniAlbumArt.setRotation(0f);
-                                startAlbumArtRotation();
-                            }
-                        })
-                        .start();
-            } else {
-                Log.w(TAG, "Cannot start rotation - miniAlbumArt is null");
+    private void setupMiniPlayerClickListeners() {
+        miniPlayerContainer.setOnClickListener(v -> {
+            if (!isActivityDestroyed) {
+                openNowPlayingActivity();
             }
-        } catch (Exception e) {
-            Log.e(TAG, "Error starting album art rotation: " + e.getMessage(), e);
-        }
+        });
+
+        miniPlayPauseButton.setOnClickListener(v -> {
+            if (!isActivityDestroyed) {
+                sendMusicServiceAction(MusicService.ACTION_TOGGLE_PLAY_PAUSE);
+            }
+        });
+
+        miniNextButton.setOnClickListener(v -> {
+            if (!isActivityDestroyed) {
+                sendMusicServiceAction(MusicService.ACTION_NEXT);
+            }
+        });
+
+        miniCloseButton.setOnClickListener(v -> {
+            if (!isActivityDestroyed) {
+                sendMusicServiceAction(MusicService.ACTION_STOP);
+                hideMiniPlayer();
+            }
+        });
     }
 
-    private void stopAlbumArtRotation() {
+    private void sendMusicServiceAction(String action) {
         try {
-            if (miniAlbumArt != null) {
-                miniAlbumArt.animate().cancel();
-                miniAlbumArt.clearAnimation();
-
-                if (albumArtRotationAnimator != null && albumArtRotationAnimator.isRunning()) {
-                    albumArtRotationAnimator.cancel();
-                }
-            } else {
-                Log.w(TAG, "miniAlbumArt is null when trying to stop rotation");
-            }
+            Intent serviceIntent = new Intent(this, MusicService.class);
+            serviceIntent.setAction(action);
+            startService(serviceIntent);
         } catch (Exception e) {
-            Log.e(TAG, "Error stopping album art rotation: " + e.getMessage(), e);
+            Log.e(TAG, "Error sending service action " + action + ": " + e.getMessage(), e);
         }
     }
-
     public void showMiniPlayer(MusicItem musicItem) {
         if (isActivityDestroyed || isFinishing() || isDestroyed() || musicItem == null) {
             return;
@@ -598,31 +480,10 @@ public class MainActivity extends AppCompatActivity {
             miniSongTitle.setText(musicItem.getTitle());
             miniArtistName.setText(musicItem.getArtist());
 
-            try {
-                Glide.with(this)
-                        .load(musicItem.getAlbumArtUri())
-                        .placeholder(R.drawable.ic_outline_music_note_24)
-                        .error(R.drawable.ic_outline_music_note_24)
-                        .into(miniAlbumArt);
-
-
-            } catch (Exception e) {
-                Log.e(TAG, "Error loading album art: " + e.getMessage(), e);
-            }
+            loadAlbumArt(musicItem);
 
             if (!isMiniPlayerVisible) {
-                isMiniPlayerVisible = true;
-                miniPlayerContainer.setVisibility(View.VISIBLE);
-                miniPlayerContainer.setTranslationY(miniPlayerContainer.getHeight());
-                miniPlayerContainer.animate()
-                        .translationY(0)
-                        .setDuration(300)
-                        .withEndAction(() -> {
-                            if (!isActivityDestroyed) {
-                                broadcastMiniPlayerVisibility(true);
-                            }
-                        })
-                        .start();
+                animateMiniPlayerIn();
             }
 
             updateMiniPlayerPlayButton();
@@ -631,19 +492,44 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void loadAlbumArt(MusicItem musicItem) {
+        try {
+            Glide.with(this)
+                    .load(musicItem.getAlbumArtUri())
+                    .placeholder(R.drawable.ic_outline_music_note_24)
+                    .error(R.drawable.ic_outline_music_note_24)
+                    .into(miniAlbumArt);
+        } catch (Exception e) {
+            Log.e(TAG, "Error loading album art: " + e.getMessage(), e);
+        }
+    }
+
+    private void animateMiniPlayerIn() {
+        isMiniPlayerVisible = true;
+        miniPlayerContainer.setVisibility(View.VISIBLE);
+        miniPlayerContainer.setTranslationY(miniPlayerContainer.getHeight());
+        miniPlayerContainer.animate()
+                .translationY(0)
+                .setDuration(MINI_PLAYER_ANIMATION_DURATION)
+                .withEndAction(() -> {
+                    if (!isActivityDestroyed) {
+                        broadcastMiniPlayerVisibility(true);
+                    }
+                })
+                .start();
+    }
+
     public void hideMiniPlayer() {
         if (isActivityDestroyed || isFinishing() || isDestroyed()) {
             return;
         }
 
         try {
-            stopAlbumArtRotation();
-
             if (isMiniPlayerVisible && miniPlayerContainer != null) {
                 isMiniPlayerVisible = false;
                 miniPlayerContainer.animate()
                         .translationY(miniPlayerContainer.getHeight())
-                        .setDuration(300)
+                        .setDuration(MINI_PLAYER_ANIMATION_DURATION)
                         .withEndAction(() -> {
                             if (!isActivityDestroyed && miniPlayerContainer != null) {
                                 miniPlayerContainer.setVisibility(View.GONE);
@@ -658,9 +544,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void broadcastMiniPlayerVisibility(boolean isVisible) {
-        if (isActivityDestroyed) {
-            return;
-        }
+        if (isActivityDestroyed) return;
 
         try {
             Intent intent = new Intent("MINI_PLAYER_VISIBILITY_CHANGED");
@@ -673,28 +557,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateMiniPlayerState(boolean playing) {
-        if (isActivityDestroyed) {
-            return;
-        }
+        if (isActivityDestroyed) return;
 
         try {
             isPlaying = playing;
             updateMiniPlayerPlayButton();
-
-            if (playing && isMiniPlayerVisible) {
-                startAlbumArtRotation();
-            } else {
-                stopAlbumArtRotation();
-            }
         } catch (Exception e) {
             Log.e(TAG, "Error updating mini player state: " + e.getMessage(), e);
         }
     }
 
     private void updateMiniPlayerPlayButton() {
-        if (isActivityDestroyed || miniPlayPauseButton == null) {
-            return;
-        }
+        if (isActivityDestroyed || miniPlayPauseButton == null) return;
 
         try {
             int iconRes = isPlaying ? R.drawable.ic_baseline_pause_24 : R.drawable.ic_baseline_play_arrow_24;
@@ -705,28 +579,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openNowPlayingActivity() {
-        if (isActivityDestroyed || currentPlayingItem == null) {
-            return;
-        }
+        if (isActivityDestroyed || currentPlayingItem == null) return;
 
         try {
             Intent intent = new Intent(this, NowPlayingActivity.class);
             intent.putExtra("music_item", currentPlayingItem);
             startActivity(intent);
-
-            overridePendingTransition(
-                    R.anim.slide_in_bottom,
-                    R.anim.slide_out_top
-            );
+            overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top);
         } catch (Exception e) {
             Log.e(TAG, "Error opening now playing activity: " + e.getMessage(), e);
         }
     }
 
     public void startMusicService(MusicItem musicItem) {
-        if (isActivityDestroyed || musicItem == null) {
-            return;
-        }
+        if (isActivityDestroyed || musicItem == null) return;
 
         try {
             Intent serviceIntent = new Intent(this, MusicService.class);
@@ -739,9 +605,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateTitle(int destinationId) {
-        if (isActivityDestroyed) {
-            return;
-        }
+        if (isActivityDestroyed) return;
 
         try {
             if (destinationId == R.id.navigation_music) {
@@ -768,35 +632,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupCollapsingToolbarTitleAnimation(AppBarLayout appBarLayout) {
-        if (appBarLayout == null) {
-            return;
-        }
+        if (appBarLayout == null) return;
 
         try {
-            appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-                @Override
-                public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                    if (isActivityDestroyed || toolbarTitle == null || collapsingToolbar == null) {
-                        return;
-                    }
+            appBarLayout.addOnOffsetChangedListener((appBar, verticalOffset) -> {
+                if (isActivityDestroyed || toolbarTitle == null || collapsingToolbar == null) {
+                    return;
+                }
 
-                    try {
-                        int totalScrollRange = appBarLayout.getTotalScrollRange();
-                        float percentage = Math.abs(verticalOffset) / (float) totalScrollRange;
+                try {
+                    int totalScrollRange = appBar.getTotalScrollRange();
+                    float percentage = Math.abs(verticalOffset) / (float) totalScrollRange;
 
-                        if (percentage > 0.7f) {
-                            toolbarTitle.setVisibility(View.VISIBLE);
-                            float alpha = (percentage - 0.7f) / 0.3f;
-                            toolbarTitle.setAlpha(alpha);
-                            collapsingToolbar.setTitle("");
-                        } else {
-                            toolbarTitle.setVisibility(View.INVISIBLE);
-                            toolbarTitle.setAlpha(0f);
-                            collapsingToolbar.setTitle(currentTitle);
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error in toolbar animation: " + e.getMessage(), e);
+                    if (percentage > TOOLBAR_FADE_THRESHOLD) {
+                        toolbarTitle.setVisibility(View.VISIBLE);
+                        float alpha = (percentage - TOOLBAR_FADE_THRESHOLD) / (1 - TOOLBAR_FADE_THRESHOLD);
+                        toolbarTitle.setAlpha(alpha);
+                        collapsingToolbar.setTitle("");
+                    } else {
+                        toolbarTitle.setVisibility(View.INVISIBLE);
+                        toolbarTitle.setAlpha(0f);
+                        collapsingToolbar.setTitle(currentTitle);
                     }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error in toolbar animation: " + e.getMessage(), e);
                 }
             });
         } catch (Exception e) {
@@ -809,13 +668,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         try {
-            Intent serviceIntent = new Intent(this, MusicService.class);
-            serviceIntent.setAction(MusicService.ACTION_REQUEST_STATE);
-            startService(serviceIntent);
-
-            if (isPlaying && isMiniPlayerVisible) {
-                startAlbumArtRotation();
-            }
+            sendMusicServiceAction(MusicService.ACTION_REQUEST_STATE);
         } catch (Exception e) {
             Log.e(TAG, "Error in onResume: " + e.getMessage(), e);
         }
@@ -828,9 +681,6 @@ public class MainActivity extends AppCompatActivity {
             if (miniPlayerContainer != null) {
                 miniPlayerContainer.clearAnimation();
             }
-            if (albumArtRotationAnimator != null && albumArtRotationAnimator.isRunning()) {
-                albumArtRotationAnimator.pause();
-            }
         } catch (Exception e) {
             Log.e(TAG, "Error in onPause: " + e.getMessage(), e);
         }
@@ -842,16 +692,9 @@ public class MainActivity extends AppCompatActivity {
 
         isActivityDestroyed = true;
 
-        try {
-            if (albumArtRotationAnimator != null) {
-                albumArtRotationAnimator.cancel();
-                albumArtRotationAnimator = null;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error cleaning up rotation animator: " + e.getMessage(), e);
-        }
+        mainHandler.removeCallbacksAndMessages(null);
 
-        if (isReceiverRegistered && musicUpdateReceiver != null) {
+        if (isReceiverRegistered) {
             try {
                 unregisterReceiver(musicUpdateReceiver);
             } catch (IllegalArgumentException e) {
@@ -863,12 +706,16 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        // Clear resources
         try {
             currentPlayingItem = null;
-            musicUpdateReceiver = null;
 
-            if (!isDestroyed()) {
+            if (!isDestroyed() && miniAlbumArt != null) {
                 Glide.with(this).clear(miniAlbumArt);
+            }
+
+            if (binding != null) {
+                binding = null;
             }
         } catch (Exception e) {
             Log.e(TAG, "Error clearing references: " + e.getMessage(), e);
