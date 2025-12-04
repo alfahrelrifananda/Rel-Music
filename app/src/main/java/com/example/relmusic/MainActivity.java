@@ -635,27 +635,38 @@ public class MainActivity extends AppCompatActivity {
         if (appBarLayout == null) return;
 
         try {
-            appBarLayout.addOnOffsetChangedListener((appBar, verticalOffset) -> {
-                if (isActivityDestroyed || toolbarTitle == null || collapsingToolbar == null) {
-                    return;
-                }
+            appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+                private boolean isCollapsed = false;
 
-                try {
-                    int totalScrollRange = appBar.getTotalScrollRange();
-                    float percentage = Math.abs(verticalOffset) / (float) totalScrollRange;
-
-                    if (percentage > TOOLBAR_FADE_THRESHOLD) {
-                        toolbarTitle.setVisibility(View.VISIBLE);
-                        float alpha = (percentage - TOOLBAR_FADE_THRESHOLD) / (1 - TOOLBAR_FADE_THRESHOLD);
-                        toolbarTitle.setAlpha(alpha);
-                        collapsingToolbar.setTitle("");
-                    } else {
-                        toolbarTitle.setVisibility(View.INVISIBLE);
-                        toolbarTitle.setAlpha(0f);
-                        collapsingToolbar.setTitle(currentTitle);
+                @Override
+                public void onOffsetChanged(AppBarLayout appBar, int verticalOffset) {
+                    if (isActivityDestroyed || toolbarTitle == null || collapsingToolbar == null) {
+                        return;
                     }
-                } catch (Exception e) {
-                    Log.e(TAG, "Error in toolbar animation: " + e.getMessage(), e);
+
+                    try {
+                        int totalScrollRange = appBar.getTotalScrollRange();
+                        float percentage = Math.abs(verticalOffset) / (float) totalScrollRange;
+
+                        // Only update when crossing threshold to reduce calculations
+                        boolean shouldCollapse = percentage > TOOLBAR_FADE_THRESHOLD;
+
+                        if (shouldCollapse != isCollapsed) {
+                            isCollapsed = shouldCollapse;
+
+                            if (isCollapsed) {
+                                toolbarTitle.setVisibility(View.VISIBLE);
+                                toolbarTitle.setAlpha(1f);
+                                collapsingToolbar.setTitle("");
+                            } else {
+                                toolbarTitle.setVisibility(View.INVISIBLE);
+                                toolbarTitle.setAlpha(0f);
+                                collapsingToolbar.setTitle(currentTitle);
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error in toolbar animation: " + e.getMessage(), e);
+                    }
                 }
             });
         } catch (Exception e) {

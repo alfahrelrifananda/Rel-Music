@@ -60,29 +60,6 @@ public class AlbumFragment extends Fragment {
 
         return root;
     }
-
-    private void setupRecyclerView() {
-        RecyclerView recyclerView = binding.albumRecyclerView;
-
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
-        recyclerView.setLayoutManager(gridLayoutManager);
-
-        albumAdapter = new AlbumAdapter(albumList, getContext());
-        recyclerView.setAdapter(albumAdapter);
-
-        albumAdapter.setOnAlbumItemClickListener(new AlbumAdapter.OnAlbumItemClickListener() {
-            @Override
-            public void onAlbumItemClick(AlbumItem albumItem) {
-                openAlbumDetail(albumItem);
-            }
-
-            @Override
-            public void onPlayButtonClick(AlbumItem albumItem) {
-                playAllSongsFromAlbum(albumItem);
-            }
-        });
-    }
-
     private void openAlbumDetail(AlbumItem albumItem) {
         if (getContext() == null) return;
 
@@ -205,17 +182,50 @@ public class AlbumFragment extends Fragment {
                 (System.currentTimeMillis() - lastCacheTime) < CACHE_DURATION;
     }
 
+    // In AlbumFragment.java
+
     private void loadFromCache() {
-        albumList.clear();
-        albumList.addAll(cachedAlbumList);
+        if (binding != null && binding.albumRecyclerView != null) {
+            binding.albumRecyclerView.post(() -> {
+                albumList.clear();
+                albumList.addAll(cachedAlbumList);
 
-        if (albumAdapter != null) {
-            albumAdapter.notifyDataSetChanged();
+                if (albumAdapter != null) {
+                    albumAdapter.notifyDataSetChanged();
+                }
+
+                updateUI();
+            });
         }
-
-        updateUI();
     }
 
+    private void setupRecyclerView() {
+        RecyclerView recyclerView = binding.albumRecyclerView;
+
+        // Performance optimizations
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemViewCacheSize(20);
+        recyclerView.setDrawingCacheEnabled(true);
+        recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
+        recyclerView.setLayoutManager(gridLayoutManager);
+
+        albumAdapter = new AlbumAdapter(albumList, getContext());
+        recyclerView.setAdapter(albumAdapter);
+
+        albumAdapter.setOnAlbumItemClickListener(new AlbumAdapter.OnAlbumItemClickListener() {
+            @Override
+            public void onAlbumItemClick(AlbumItem albumItem) {
+                openAlbumDetail(albumItem);
+            }
+
+            @Override
+            public void onPlayButtonClick(AlbumItem albumItem) {
+                playAllSongsFromAlbum(albumItem);
+            }
+        });
+    }
     private boolean hasStoragePermission() {
         String permission;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {

@@ -92,6 +92,12 @@ public class MusicFragment extends Fragment {
 
     private void setupRecyclerView() {
         RecyclerView recyclerView = binding.musicRecyclerView;
+
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemViewCacheSize(20);
+        recyclerView.setDrawingCacheEnabled(true);
+        recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
         musicAdapter = new MusicAdapter(musicList, getContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(musicAdapter);
@@ -118,6 +124,7 @@ public class MusicFragment extends Fragment {
         checkPermissionAndLoadMusic();
     }
 
+
     private boolean isCacheValid() {
         return cachedMusicList != null &&
                 !cachedMusicList.isEmpty() &&
@@ -125,14 +132,18 @@ public class MusicFragment extends Fragment {
     }
 
     private void loadFromCache() {
-        musicList.clear();
-        musicList.addAll(cachedMusicList);
+        if (binding != null && binding.musicRecyclerView != null) {
+            binding.musicRecyclerView.post(() -> {
+                musicList.clear();
+                musicList.addAll(cachedMusicList);
 
-        if (musicAdapter != null) {
-            musicAdapter.notifyDataSetChanged();
+                if (musicAdapter != null) {
+                    musicAdapter.notifyDataSetChanged();
+                }
+
+                updateUI();
+            });
         }
-
-        updateUI();
     }
 
     private void startMusicServiceAndOpenNowPlaying(MusicItem musicItem) {

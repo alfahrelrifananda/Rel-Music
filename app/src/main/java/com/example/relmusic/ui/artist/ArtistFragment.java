@@ -61,28 +61,6 @@ public class ArtistFragment extends Fragment {
         return root;
     }
 
-    private void setupRecyclerView() {
-        RecyclerView recyclerView = binding.artistRecyclerView;
-
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 1);
-        recyclerView.setLayoutManager(gridLayoutManager);
-
-        artistAdapter = new ArtistAdapter(artistList, getContext());
-        recyclerView.setAdapter(artistAdapter);
-
-        artistAdapter.setOnArtistItemClickListener(new ArtistAdapter.OnArtistItemClickListener() {
-            @Override
-            public void onArtistItemClick(ArtistItem artistItem) {
-                openArtistDetail(artistItem);
-            }
-
-            @Override
-            public void onPlayButtonClick(ArtistItem artistItem) {
-                playAllSongsFromArtist(artistItem);
-            }
-        });
-    }
-
     private void openArtistDetail(ArtistItem artistItem) {
         if (getContext() == null) return;
 
@@ -204,15 +182,49 @@ public class ArtistFragment extends Fragment {
                 (System.currentTimeMillis() - lastCacheTime) < CACHE_DURATION;
     }
 
+    // In ArtistFragment.java
+
     private void loadFromCache() {
-        artistList.clear();
-        artistList.addAll(cachedArtistList);
+        if (binding != null && binding.artistRecyclerView != null) {
+            binding.artistRecyclerView.post(() -> {
+                artistList.clear();
+                artistList.addAll(cachedArtistList);
 
-        if (artistAdapter != null) {
-            artistAdapter.notifyDataSetChanged();
+                if (artistAdapter != null) {
+                    artistAdapter.notifyDataSetChanged();
+                }
+
+                updateUI();
+            });
         }
+    }
 
-        updateUI();
+    private void setupRecyclerView() {
+        RecyclerView recyclerView = binding.artistRecyclerView;
+
+        // Performance optimizations
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemViewCacheSize(20);
+        recyclerView.setDrawingCacheEnabled(true);
+        recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 1);
+        recyclerView.setLayoutManager(gridLayoutManager);
+
+        artistAdapter = new ArtistAdapter(artistList, getContext());
+        recyclerView.setAdapter(artistAdapter);
+
+        artistAdapter.setOnArtistItemClickListener(new ArtistAdapter.OnArtistItemClickListener() {
+            @Override
+            public void onArtistItemClick(ArtistItem artistItem) {
+                openArtistDetail(artistItem);
+            }
+
+            @Override
+            public void onPlayButtonClick(ArtistItem artistItem) {
+                playAllSongsFromArtist(artistItem);
+            }
+        });
     }
 
     private boolean hasStoragePermission() {
