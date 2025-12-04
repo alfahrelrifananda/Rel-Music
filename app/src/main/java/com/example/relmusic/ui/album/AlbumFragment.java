@@ -150,7 +150,6 @@ public class AlbumFragment extends Fragment {
 
         return songs;
     }
-
     private void startAlbumPlayback(List<MusicItem> albumSongs) {
         if (getContext() == null || albumSongs.isEmpty()) return;
 
